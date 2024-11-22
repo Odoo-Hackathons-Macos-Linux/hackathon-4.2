@@ -11,11 +11,13 @@ const server = createServer(app);
 const io = new Server(server);
 
 app
+  .set("view engine", "ejs")
+  .set("views", join(__dirname, 'presentation'))
   .use(express.static(join(__dirname, 'presentation/static')));
 
 
 app.get('/', (_req, res) => {
-  res.sendFile(join(__dirname, "presentation", "pages", 'index.html'));
+  res.render("pages/index", { title: "KAAAAAAAAAAAAAACPER" })
 });
 
 io.on("connection", (socket) => {
