@@ -1,0 +1,24 @@
+{
+  "name": "odoo-2024",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "serve": "node src/index.js",
+    "css:w": "npx tailwindcss -i ./src/presentation/static/css/input.css -o ./src/presentation/static/css/output.css --watch",
+    "css": "npx tailwindcss -i ./src/presentation/static/css/input.css -o ./src/presentation/static/css/output.css"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "express": "^4.21.1",
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.15"
+  }
+}
