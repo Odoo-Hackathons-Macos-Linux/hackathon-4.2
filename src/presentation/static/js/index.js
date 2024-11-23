@@ -20,7 +20,7 @@ function generateUniqueId() {
 
 console.log("User ID: " + userId);  // Print user ID to the console
 
-let totalydead = localStorage.getItem("totalydead") === "true";  // Retrieve the stored death status from localStorage
+let totalydead = localStorage.getItem("totalydead") == "true";  // Retrieve the stored death status from localStorage
 
 socket.on("newTurn", (currentTurn) => {
     turn = currentTurn;
@@ -42,7 +42,7 @@ socket.on("newTurn", (currentTurn) => {
     let status = ["alive", "sick", "dead"];
     let choice = getRandomElement(status);
 
-    if (choice === "dead") {
+    if (choice == "dead") {
         startTurn(choice);  // Handle turn when the player dies
         totalydead = true;  // Mark the player as dead
         localStorage.setItem("totalydead", "true");  // Store the death status in localStorage
