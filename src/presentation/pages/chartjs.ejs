@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="/css/output.css" rel="stylesheet">
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/js/chart-assets/chartsGradients.js"></script>
+    <script src="/js/chart-assets/chartOptions.js"></script>
+</head>
+<body class="bg-black text-center">
+    <div class="charts-container flex items-center justify-center min-h-screen">
+        <div class="chart-column">
+            <canvas id="myChart" width="550" height="280"></canvas>
+            <div class="legend">
+                <span>🔥</span>
+            </div>
+            <canvas id="myChart2" width="550" height="280"></canvas>
+            <div class="legend">
+                <span>🔥</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Establishing socket connection
+        const socket = io();
+        socket.on('connect', () => {
+            console.log('Connecté avec le socket ID:', socket.id);
+        });
+
+        // Accessing the canvas contexts
+        const ctx = document.getElementById('myChart').getContext('2d');
+        const ctx2 = document.getElementById('myChart2').getContext('2d');
+
+        // Data for the first chart
+        const labels = ['0', '1', '2', '3'];
+        const data = [20, 21, 23, 30];
+
+        const myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'data',
+                    data: data,
+                    backgroundColor: (context) => {
+                        const chart = context.chart;
+                        const { chartArea } = chart;
+                        if (!chartArea) {
+                            return null; // If the chart area is not ready, return null
+                        }
+                        return getGradient(chart);  // Use the updated gradient function
+                    },
+                  borderColor: 'grey',
+                  borderWidth: 2
+                }]
+            },
+            options: getChartOptions()
+        });
+
+        // Data for the second chart
+        const data2 = [22, 20, 15, 10];
+        const myChart2 = new Chart(ctx2, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'data2',
+                    data: data2,
+                    backgroundColor: (context) => {
+                        const chart = context.chart;
+                        const { chartArea } = chart;
+                        if (!chartArea) {
+                            return null; // If the chart area is not ready, return null
+                        }
+                        return getGradient(chart);  // Use the updated gradient function
+                    },
+                    borderColor: 'grey',
+                    borderWidth: 2
+                }]
+            },
+            options: getChartOptions()
+        });
+
+        // Function to create a gradient from red to green
+        function getGradient(chart) {
+          const { ctx, chartArea: { top, bottom }, scales: {x, y} } = chart;
+
+            // Create a linear gradient for the chart background
+            const gradientSegment = ctx.createLinearGradient(0, bottom, 0, top);
+
+            // Define the red and green colors for the gradient
+            const startColor = { r: 255, g: 49, b: 3 };  // Red
+            const endColor = { r: 45, g: 255, b: 14 };  // Green
+
+            // Function to interpolate between two colors
+            function getColor(ratio) {
+                const r = Math.floor(startColor.r + (endColor.r - startColor.r) * ratio);
+                const g = Math.floor(startColor.g + (endColor.g - startColor.g) * ratio);
+                const b = Math.floor(startColor.b + (endColor.b - startColor.b) * ratio);
+                return `rgba(${r}, ${g}, ${b}, 0.6)`;  // Adjust the alpha (0.3) as needed
+            }
+            
+            let border = (bottom - y.getPixelForValue(15)) / (bottom) - top;
+
+            // Add color stops to the gradient
+            gradientSegment.addColorStop(0, getColor(0));    // Start with red
+            gradientSegment.addColorStop(border, getColor(1));// Middle transition color
+            gradientSegment.addColorStop(1, getColor(1));    // End with green
+
+            return gradientSegment;
+        }
+    </script>
+</body>
+</html>
