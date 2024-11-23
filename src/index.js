@@ -19,12 +19,28 @@ setInterval(() => {
 
 app
   .set("view engine", "ejs")
-  .set("views", join(__dirname, 'presentation'))
-  .use(express.static(join(__dirname, 'presentation/static')));
+  .set("views", join(__dirname, "presentation"))
+  .use(express.static(join(__dirname, "presentation/static")));
 
+app.get("/", (_req, res) => {
+  res.render("pages/index", { title: "KAAAAAAAAAAAAAACPER" });
+});
 
-app.get('/', (_req, res) => {
-  res.render("pages/index", { title: "KAAAAAAAAAAAAAACPER" })
+app.get("/card", (_req, res) => {
+  let eventTypes = [
+    "None",
+    "Famine",
+    "Attack",
+    "Storm",
+    "Kidnapping",
+    "Loot",
+    "Package",
+    "Fire",
+  ];
+  let id = 4;
+  res.render("pages/card", {
+    eventTypes: eventTypes[id],
+  });
 });
 
 io.on("connection", (socket) => {
@@ -35,7 +51,7 @@ io.on("connection", (socket) => {
 
 
 server.listen(3000, () => {
-  console.log('server running at http://localhost:3000');
+  console.log("server running at http://localhost:3000");
 });
 
 
