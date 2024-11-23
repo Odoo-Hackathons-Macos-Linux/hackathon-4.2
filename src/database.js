@@ -1,50 +1,36 @@
 import SQLDataBase from 'better-sqlite3';
+import { readFileSync } from 'node:fs';
+import { join } from "node:path";
 
 export class Database {
-  constructor(fileName) {
-    this.db = new SQLDataBase(fileName);
+  /**
+  * @constructor
+  * @param {string} filename
+  */
+  constructor(filename) {
+    this.db = new SQLDataBase(filename);
   }
 
   init() {
 
-    const createTableQuery = `
-      CREATE TABLE IF NOT EXISTS users(
-        id TEXT PRIMARY KEY
-      );
+    const initQueryPath = join(process.cwd(), "src", "db", "init.sql");
+    const initQuery = readFileSync(initQueryPath, "utf8");
 
-      CREATE TABLE IF NOT EXISTS events(
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT,
-        is_special INTEGER NOT NULL DEFAULT 0
-      );
-
-      CREATE TABLE IF NOT EXISTS choices(
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        image TEXT,
-        name TEXT,
-        personnality_type TEXT,
-        ponderation REAL,
-        event_id INTEGER,
-        user_id TEXT,
-        FOREIGN KEY (event_id) REFERENCES events (id),
-        FOREIGN KEY (user_id) REFERENCES users (id)
-      );
-      
-    `;
-
-    this.db.exec(createTableQuery);
+    this.db.exec(initQuery);
   }
 
-  insertChoice(image, name, personnality_type, ponderation) {
-    this.db.prepare('INSERT INTO choices (image, name, personnality_type, ponderation) VALUES(?,?,?,?)').run(image, name, personnality_type, ponderation);
-  }
+  getTurnData(eventId) {
+    const query = this.db.prepare(`
+      SELECT ev.id AS event_id, ev.image AS event_image, ca.id AS category_id,
+      ca.image AS category_image, ch.id AS choice_id, ch.image AS choice_image
+      FROM choices ch
+      JOIN categories ca ON ca.id == ch.category_id
+      JOIN events_categories ec ON ec.category_id == ca.id
+      JOIN events ev ON ev.id == ec.event_id
+      WHERE ev.id == ?
+    `);
 
-  insertUser(id, choices) {
-    this.db.prepare('INSERT INTO users (id) VALUES (?, ?)').run(id, choices);
-  }
-
-  insertEvent(name, is_special) {
-    this.db.prepare('INSERT INTO events (name, is_special) VALUES (?, ?)').run(name, is_special);
+    return query.all(eventId);
   }
 
 }

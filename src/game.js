@@ -1,4 +1,5 @@
 import { Server } from 'socket.io';
+import { Database } from './database';
 
 class GameServer {
 
@@ -6,6 +7,12 @@ class GameServer {
    * @private
    */
   server;
+
+  /**
+   * @private
+   * @type {Database}
+   */
+  db
 
   /**
    * @type {number}
@@ -30,13 +37,16 @@ class GameServer {
   /**
   * @constructor
   * @param {Server} server
+  * @param {Database} db
   */
-  constructor(server) {
+  constructor(server, db) {
     this.server = server;
+    this.db = db;
   }
 
   sendNewTurn() {
-    this.server.emit("newTurn", this.turnNumber);
+    let data = this.db.getTurnData(1);
+    this.server.emit("newTurn", this.turnNumber, data);
     this.turnNumber += 1;
   }
 
