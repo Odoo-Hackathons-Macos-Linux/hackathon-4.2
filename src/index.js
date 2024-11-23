@@ -23,7 +23,7 @@ app
   .use(express.static(join(__dirname, "presentation/static")));
 
 app.get("/", (_req, res) => {
-  res.render("pages/index", { title: "KAAAAAAAAAAAAAACPER" });
+  res.render("pages/index", { eventTypes: "None" });
 });
 
 app.get("/card", (_req, res) => {
