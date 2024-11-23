@@ -31,6 +31,7 @@ class GameServer {
   constructor(server, db) {
     this.server = server;
     this.db = db;
+    // db.init()
   }
 
   /**

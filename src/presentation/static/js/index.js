@@ -114,7 +114,7 @@ function startTurn(status, data) {
 
                 const img = document.createElement("img");
                 if (item.image) {
-                    img.src = item.image;
+                    img.src = "/img/" + item.image;
                 }
                 img.className = "rounded-lg";
 
@@ -156,7 +156,7 @@ function startTurn(status, data) {
 
                 const img = document.createElement("img");
                 if (item.choice_image) {
-                    img.src = item.choice_image;
+                    img.src = "/img/" + item.choice_image;
                 }
                 img.className = "rounded-lg";
 
