@@ -558,6 +558,22 @@ video {
   position: relative;
 }
 
+.flex {
+  display: flex;
+}
+
+.grid {
+  display: grid;
+}
+
+.resize {
+  resize: both;
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
 .text-3xl {
   font-size: 1.875rem;
   line-height: 2.25rem;

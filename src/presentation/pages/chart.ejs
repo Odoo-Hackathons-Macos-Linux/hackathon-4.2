@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/js/chart-assets/chartsGradients.js"></script>
+    <script src="/js/chart-assets/chartOptions.js"></script>
+    <style> 
+        body {
+            font-family: Arial, sans-serif;
+            background-color: rgba(0, 0, 0, 0.90);
+            color: #333;
+            text-align: center;
+            padding: 20px;
+            margin: 0;
+        }
+
+        h1 {
+            color: #2c3e50;
+        }
+
+        canvas {
+            background-color: rgba(0, 0, 0, 0.85);
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin: 20px 0;
+            
+            width: 100%;
+            height: auto;
+        }
+
+        .charts-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .chart-column {
+            display: flex;
+            flex-direction: column;
+            gap: 20px
+        }
+    </style>
+
+</head>
+<body>
+    <h1><%= title %></h1>
+
+    <div class="charts-container">
+        <div class="chart-column">
+            <canvas id="myChart" width="350" height="180"></canvas>
+            <div class="legend">
+                <span>🔥</span>
+            </div>
+            <canvas id="myChart2" width="350" height="180"></canvas>
+            <div class="legend">
+                <span>🔥</span>
+            </div>
+        </div>
+        <div class="chart-column">
+            <canvas id="myChart3" width="350" height="180"></canvas>
+            <div class="legend">
+                <span>🔥</span>
+            </div>
+            <canvas id="myChart4" width="350" height="180"></canvas> 
+            <div class="legend">
+                <span>🔥</span>
+            </div>
+        </div>
+    </div>
+ 
+    <script>
+        const socket = io();
+        socket.on('connect', () => {
+            console.log('Connecté avec le socket ID:', socket.id);
+        });
+
+        const ctx = document.getElementById('myChart').getContext('2d');
+        const ctx2 = document.getElementById('myChart2').getContext('2d');
+        const ctx3 = document.getElementById('myChart3').getContext('2d');
+        const ctx4 = document.getElementById('myChart4').getContext('2d');
+
+
+    const labels = ['0', '1', '2', '3', '4', '5'];
+    const data = [1, 5, 10, 15, 20, 22];
+
+    const backgroundColors = data.map((_, index) => getGradientLightBlue(index, data.length));
+
+    // Premier graphique
+    const myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'data',
+                data: data,
+                backgroundColor: backgroundColors,
+                borderColor: backgroundColors.map(color => color.replace(/0.3/, '1')),
+                borderWidth: 1
+            }]
+        },
+        options: getChartOptions()
+    });
+
+    const data2 = [22, 20, 15, 10, 5, 1];
+    const backgroundColors2 = data2.map((_, index) => getGradientRed(index, data2.length));
+
+    // Deuxième graphique
+    const myChart2 = new Chart(ctx2, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'data2',
+                data: data2,
+                backgroundColor: backgroundColors2,
+                borderColor: backgroundColors2.map(color => color.replace(/0.3/, '1')),
+                borderWidth: 1
+            }]
+        },
+        options: getChartOptions()
+    });
+
+    const data3 = [10, 5, 15, 22, 10, 15];
+    const backgroundColors3 = data3.map((_, index) => getGradientGreen(index, data3.length));
+
+    // Troisième graphique
+    const myChart3 = new Chart(ctx3, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'data3',
+                data: data3,
+                backgroundColor: backgroundColors3,
+                borderColor: backgroundColors3.map(color => color.replace(/0.3/, '1')),
+                borderWidth: 1
+            }]
+        },
+        options: getChartOptions()
+    });
+
+    const data4 = [22, 15, 5, 5, 22, 10];
+    const backgroundColors4 = data4.map((_, index) => getGradientPurple(index, data4.length));
+
+    // Quatrième graphique
+    const myChart4 = new Chart(ctx4, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'data4',
+                data: data4,
+                backgroundColor: backgroundColors4,
+                borderColor: backgroundColors4.map(color => color.replace(/0.3/, '1')),
+                borderWidth: 1
+            }]
+        },
+        options: getChartOptions()
+    });
+    
+
+
+</script>
+</body>
+</html>
