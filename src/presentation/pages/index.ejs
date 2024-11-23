@@ -7,15 +7,23 @@
     <link href="/css/output.css" rel="stylesheet">
     <script src="/js/socket.io.min.js"></script>
     <script src="/js/index.js" defer></script>
-
+    <link href="/css/cards.css" rel="stylesheet" />
   </head>
-  <body>
+  <body class="bg-black h-screen">
     <div id="wait" class="">
-      <p>Waiting for the next turn</p> 
+      <p class="text-white">Waiting for the next turn</p> 
     </div>
 
     <div id="newTurn" class="hidden">
-      <p>Aya</p> 
+      <div id="alive" class="hidden">
+        <%- include('components/alive') %>
+      </div>
+      <div id="sick" class="hidden">
+        <%- include('components/sick')%>
+      </div>
+      <div id="dead" class="hidden">
+        <%- include('components/dead') %>
+      </div>
     </div>
   </body>
 </html>

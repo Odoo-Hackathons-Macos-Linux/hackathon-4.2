@@ -30,24 +30,24 @@ CREATE TABLE IF NOT EXISTS choices (
   FOREIGN KEY(category_id) REFERENCES categories(id)
 );
 
-INSERT INTO events (id, name) VALUES
-  (1, 'normal'),
-  (2, 'famine'),
-  (3, 'attack'),
-  (4, 'storm'),
-  (5, 'drop'),
-  (6, 'kidnapping'),
-  (7, 'incendie'),
-  (8, 'illness');
+INSERT INTO events (id, name, image) VALUES
+  (1, 'normal', 'events/normal.jpeg'),
+  (2, 'famine', 'events/famine.jpeg'),
+  (3, 'attack', 'events/attack.jpeg'),
+  (4, 'storm', 'events/storm.jpeg'),
+  (5, 'drop', 'events/supplyDrop.jpeg'),
+  (6, 'kidnapping', 'events/kidnapping3.jpeg'),
+  (7, 'incendie', 'events/fire.jpeg'),
+  (8, 'illness', 'events/maladie.jpeg');
 
-INSERT INTO categories (id, name) VALUES 
-  (1, 'resources'),
-  (2, 'construction'),
-  (3, 'exploration'),
-  (4, 'technology'),
-  (5, 'save'),
-  (6, 'firefighter'),
-  (7, 'antidote');
+INSERT INTO categories (id, name, image) VALUES 
+  (1, 'resources', 'ressources/ressources.jpeg'),
+  (2, 'construction', 'construction/construction.jpeg'),
+  (3, 'exploration', 'exploration/exploration.jpeg'),
+  (4, 'technology', 'technology/technology.jpeg'),
+  (5, 'save', 'autre/save.jpeg'),
+  (6, 'firefighter', 'autre/firefighter.jpeg'),
+  (7, 'antidote', 'autre/antidote.jpeg');
 
 INSERT INTO events_categories (event_id, category_id) VALUES
   (1, 1),
@@ -93,29 +93,29 @@ INSERT INTO events_categories (event_id, category_id) VALUES
   (8, 4),
   (8, 7); /* illness - antidote */
 
-INSERT INTO choices (category_id, name) VALUES
-  (1, 'water'),
-  (1, 'plants'),
-  (1, 'fishing'),
-  (1, 'wood'),
-  (1, 'cooking'),
+INSERT INTO choices (category_id, name, image) VALUES
+  (1, 'water', 'ressources/water.jpeg'),
+  (1, 'plants', 'ressources/plants.jpeg'),
+  (1, 'fishing', 'ressources/fishing.jpeg'),
+  (1, 'wood', 'ressources/wood.jpeg'),
+  (1, 'cooking', 'ressources/cooking.jpeg'),
 
-  (2, 'abris'),
-  (2, 'fire'),
-  (2, 'ramparts'),
-  (2, 'storage'),
+  (2, 'abris', 'construction/abris.jpeg'),
+  (2, 'fire', 'construction/fire.webp'),
+  (2, 'ramparts', 'construction/security.jpeg'),
+  (2, 'storage', 'construction/storage.jpeg'),
 
-  (3, 'water++'),
-  (3, 'wood++'),
-  (3, 'loot'),
-  (3, 'hunting'),
+  (3, 'water++', 'exploration/water+.jpeg'),
+  (3, 'wood++', 'exploration/wood+.jpeg'),
+  (3, 'loot', 'exploration/remains.jpeg'),
+  (3, 'hunting', 'exploration/hunting.jpeg'),
 
-  (4, 'tools'),
-  (4, 'transports'),
-  (4, 'security'),
-  (4, 'agriculture'),
+  (4, 'tools', 'technology/tools.jpeg'),
+  (4, 'transports', 'technology/transport.jpeg'),
+  (4, 'security', 'technology/security.jpeg'),
+  (4, 'agriculture', 'technology/agriculture.jpeg'),
 
-  (5, 'save'),
-  (6, 'firefighter'),
-  (7, 'illness');
+  (5, 'save', 'autre/save.jpeg'),
+  (6, 'firefighter', 'autre/firefighter.jpeg'),
+  (7, 'antidote', 'autre/antidote.jpeg');
 

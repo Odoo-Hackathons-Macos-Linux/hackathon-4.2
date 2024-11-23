@@ -1,0 +1,51 @@
+<div class="flex flex-col items-center justify-center h-full space-y-6">
+    <!-- Custom Event Handlers -->
+    <div id="custom-event" class="custom-event-start">
+      <div class="flex flex-wrap gap-12 justify-center p-4 relative">
+        <!-- Arrow -->
+        <div class="arrow-container">
+          <div class="arrow"></div>
+        </div>
+  
+        <!-- Event Before -->
+        <div
+          id="event-before-sick"
+          class="w-[calc(50%-1rem)] max-w-[150px] rounded-lg cursor-pointer relative"
+        >
+          <img src="/img/events/attack.jpeg" class="rounded-lg" />
+        </div>
+  
+        <!-- Event Now -->
+        <div
+          id="event-now-sick"
+          class="w-[calc(50%-1rem)] max-w-[150px] rounded-lg cursor-pointer relative"
+        >
+          <img src="/img/events/attack.jpeg" class="rounded-lg" />
+        </div>
+      </div>
+    </div>
+    <!-- Sick Card -->
+    <div class="flex flex-wrap gap-12 justify-center relative">
+        <div id="sick-card" class="hidden">
+            <div class="flex flex-wrap gap-4 justify-center pr-4 pl-4">
+                <div
+                id=""
+                class="selectable-card w-[80%] bg-red-700 shadow rounded-lg p-1 cursor-pointer">
+                    <img src="/img/events/maladie.jpeg" class="rounded-lg" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Timebar -->
+    <div
+      id="timebar-sick"
+      class="w-[88%] bg-gray-300 rounded-full h-4 overflow-hidden hidden"
+    >
+      <div
+        id="timebar-progress-sick"
+        class="bg-red-700 h-full transition-all rounded-full"
+        style="width: 0"
+      ></div>
+    </div>
+  </div>
