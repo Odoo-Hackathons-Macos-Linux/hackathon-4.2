@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS choices (
 );
 
 INSERT INTO events (id, name, image) VALUES
-  (1, 'normal', 'events/normal.jpeg'),
+  (1, 'normal', 'events/base.png'),
   (2, 'famine', 'events/famine.jpeg'),
   (3, 'attack', 'events/attack.jpeg'),
   (4, 'storm', 'events/storm.jpeg'),
