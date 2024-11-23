@@ -558,22 +558,8 @@ video {
   position: relative;
 }
 
-.text-3xl {
-  font-size: 1.875rem;
-  line-height: 2.25rem;
-}
-
-.font-bold {
-  font-weight: 700;
-}
-
-.text-red-700 {
-  --tw-text-opacity: 1;
-  color: rgb(185 28 28 / var(--tw-text-opacity, 1));
-}
-
-.underline {
-  text-decoration-line: underline;
+.hidden {
+  display: none;
 }
 
 .filter {
