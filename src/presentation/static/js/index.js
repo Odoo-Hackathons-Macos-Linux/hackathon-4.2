@@ -243,7 +243,6 @@ function startTurn(status, data) {
             console.error("Event not found!");
         }
 
-
         // Initialize and Start the Process
         life.classList.remove('hidden');
         displayCategories();
