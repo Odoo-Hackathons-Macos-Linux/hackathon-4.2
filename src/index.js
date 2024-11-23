@@ -3,12 +3,19 @@ import { createServer } from 'node:http';
 import { join, dirname } from 'node:path';
 import { Server } from 'socket.io';
 import { fileURLToPath } from 'node:url';
+import GameServer from './game.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const app = express();
 const server = createServer(app);
 const io = new Server(server);
+const gameInstance = new GameServer(io);
+
+setInterval(() => {
+  console.log("Sending new turn")
+  gameInstance.sendNewTurn();
+}, 15 * 1000);
 
 app
   .set("view engine", "ejs")
@@ -21,9 +28,15 @@ app.get('/', (_req, res) => {
 });
 
 io.on("connection", (socket) => {
-  console.log(socket.id);
+  console.log("Socket connected: " + socket.id);
+
+  socket.on("played", (turn, choice) => gameInstance.onPlayerPlayed(socket.id, turn, choice));
 });
+
 
 server.listen(3000, () => {
   console.log('server running at http://localhost:3000');
 });
+
+
+export { gameInstance };
