@@ -37,7 +37,7 @@ socket.on("newTurn", (currentTurn, data) => {
     wait.classList.add("hidden");
     newTurn.classList.remove("hidden");
 
-    let status = ["alive", "sick", "dead"];
+    let status = ["alive", "sick"];
     let choice = getRandomElement(status);
     if (choice == "dead") {
         startTurn(choice, data); 
@@ -46,8 +46,10 @@ socket.on("newTurn", (currentTurn, data) => {
         console.log("Character is dead now");
     } else if (choice == "sick"){
         startTurn(choice, data); 
-        wait.classList.remove("hidden");
-        newTurn.classList.add("hidden");
+        setTimeout(() => {
+            wait.classList.remove("hidden"); 
+            newTurn.classList.add("hidden");
+        }, 10000);
     } else {
         startTurn(choice, data); 
         setTimeout(() => {
@@ -227,6 +229,21 @@ function startTurn(status, data) {
             }, 100);
         }
 
+        const event = data.find((x) => x.event_id); // Find the event by its ID
+        if (event) {
+            console.log(event);
+            const imgEventSrc = "/img/" + event.event_image; // Construct the image path
+
+            // Update the "event-now" image
+            const eventNowImg = document.querySelector("#event-now img");
+            if (eventNowImg) {
+                eventNowImg.src = imgEventSrc;
+            }
+        } else {
+            console.error("Event not found!");
+        }
+
+
         // Initialize and Start the Process
         life.classList.remove('hidden');
         displayCategories();
@@ -274,6 +291,19 @@ function startTurn(status, data) {
         sickCard.classList.remove("hidden");
         sickCard.classList.add("flex");
         timebar.classList.remove("hidden");
+        
+        const event = data.find((x) => x.event_id); // Find the event by its ID
+        if (event) {
+            const imgEventSrc = "/img/" + event.event_image; // Construct the image path
+
+            // Update the "event-now" image
+            const eventNowImg = document.querySelector("#event-now img");
+            if (eventNowImg) {
+                eventNowImg.src = imgEventSrc; // Set the new image source
+            }
+        } else {
+            console.error("Event not found!");
+        }
 
         startTimer();
         return "None";
