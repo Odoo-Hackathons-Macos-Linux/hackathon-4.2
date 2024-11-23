@@ -203,3 +203,7 @@ $RECYCLE.BIN/
 # End of https://www.toptal.com/developers/gitignore/api/macos,windows,node
 
 src/presentation/static/css/output.css
+
+*.db
+*.sqlite
+*.sqlite3
