@@ -1,5 +1,5 @@
 import { Server } from 'socket.io';
-import { Database } from './database';
+import { Database } from './database.js';
 
 class GameServer {
   /**

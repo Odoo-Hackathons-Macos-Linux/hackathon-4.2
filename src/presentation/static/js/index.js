@@ -2,7 +2,7 @@ const socket = io();
 const wait = document.getElementById("wait");
 const newTurn = document.getElementById("newTurn");
 
-let selectedCardID = "resources";
+let selectedCardID = 1;
 let turn = 0;
 
 // Get or create a persistent unique user ID
@@ -22,18 +22,16 @@ console.log("User ID: " + userId);  // Print user ID to the console
 
 let totalydead = localStorage.getItem("totalydead") == "true";  // Retrieve the stored death status from localStorage
 
-socket.on("newTurn", (currentTurn) => {
+socket.on("newTurn", (currentTurn, data) => {
     turn = currentTurn;
-
     // Check if the player is dead
     if (totalydead) {
         console.log("Player is dead, skipping turn");
         wait.classList.add("hidden");
         newTurn.classList.remove("hidden");
-        startTurn("dead"); 
+        startTurn("dead", data);
         return;  
     }
-
     console.log("Player is alive, continuing the game");
 
     wait.classList.add("hidden");
@@ -41,21 +39,22 @@ socket.on("newTurn", (currentTurn) => {
 
     let status = ["alive", "sick", "dead"];
     let choice = getRandomElement(status);
-
     if (choice == "dead") {
-        startTurn(choice);  // Handle turn when the player dies
-        totalydead = true;  // Mark the player as dead
-        localStorage.setItem("totalydead", "true");  // Store the death status in localStorage
+        startTurn(choice, data); 
+        totalydead = true; 
+        localStorage.setItem("totalydead", "true"); 
         console.log("Character is dead now");
-
-        socket.emit("played", userId, turn, correctedIDfun(selectedCardID));
+    } else if (choice == "sick"){
+        startTurn(choice, data); 
+        wait.classList.remove("hidden");
+        newTurn.classList.add("hidden");
     } else {
-        startTurn(choice); 
+        startTurn(choice, data); 
         setTimeout(() => {
             socket.emit("played", userId, turn, correctedIDfun(selectedCardID));
             wait.classList.remove("hidden");
             newTurn.classList.add("hidden");
-        }, 10000);  // Adjust the delay as necessary
+        }, 10000);
     }
 });
 
@@ -68,133 +67,170 @@ function getRandomElement(arr) {
 
 // Card ID correction function
 function correctedIDfun(selectedCardID) {
-    if (selectedCardID == 'resources') {
-        return 'water';
-    } else if (selectedCardID == 'build') {
-        return 'shelter';
-    } else if (selectedCardID == 'exploration') {
-        return 'water++';
-    } else if (selectedCardID == 'technology') {
-        return 'tools';
+    if (selectedCardID == null) {
+        return 1;
     }
     return selectedCardID;
 }
 
-function startTurn(status) {
+function startTurn(status, data) {
     if (status == 'alive'){
         const progressBar = document.getElementById("timebar-progress");
         const life = document.getElementById("alive");
-        const mainCards = document.getElementById("main-cards");
-        const menus = {
-            resources: document.getElementById("resources-cards"),
-            build: document.getElementById("build-cards"),
-            exploration: document.getElementById("exploration-cards"),
-            technology: document.getElementById("technology-cards"),
-        };
+        const parentContainer = document.getElementById("category-container");
+        const nextContainer = document.getElementById("next-container");
         const event_before = document.getElementById("event-before");
         const event_after = document.getElementById("event-now");
         const timebar = document.getElementById("timebar");
 
-        if (!mainCards || !event_before || !event_after || !timebar) {
+        if (!parentContainer || !event_before || !event_after || !timebar || !nextContainer) {
             console.error("One or more required DOM elements are missing!");
-            return; // Exit the function early if critical elements are missing
+            return;
         }
 
         let width = 0;
         let timerInterval;
         let totalTime = 0;
-        let sectionDuration = 4.6; // Duration for each section in seconds
-        let selectedGroupID = "resources";
+        let sectionDuration = 4.6; // Timer duration in seconds
+        let selectedGroupID = 1;
 
-        // Function to start the timer
-        function startTimer() {
-            clearInterval(timerInterval);
-            totalTime = 0; // Reset time each time we start the timer
-            timerInterval = setInterval(() => {
-                totalTime += 0.1; // Increment accumulated time by 0.1 second
-                width = (totalTime / sectionDuration) * 100; // Calculate the progress as a percentage
-                progressBar.style.width = `${width}%`;
+        // Step 1: Create unique categories dynamically
+        let category = data.map((x) => ({ id: x.category_id, image: x.category_image }))
+        .reduce((acc, item) => {
+            if (!acc.some((x) => x.id === item.id)) {
+                acc.push(item);
+            }
+            return acc;
+        }, []);
 
-                // If the progress bar reaches 100%, stop the interval
-                if (width >= 100) {
-                    clearInterval(timerInterval);
-                    switchToNextStep();
+        // Populate category elements dynamically
+        function displayCategories() {
+            parentContainer.innerHTML = ""; // Clear previous items
+            category.forEach((item) => {
+                const div = document.createElement("div");
+                div.id = item.id;
+                div.className =
+                    "selectable-card w-[calc(50%-1rem)] max-w-[130px] min-w-[100px] min-h-[100px] bg-white shadow rounded-lg p-1 cursor-pointer";
+
+                const img = document.createElement("img");
+                if (item.image) {
+                    img.src = item.image;
                 }
-            }, 100); // Update every 100ms
+                img.className = "rounded-lg";
+
+                div.appendChild(img);
+                parentContainer.appendChild(div);
+
+                // Add click listener to handle selection
+                div.addEventListener("click", () => {
+                    document.querySelectorAll(".selectable-card").forEach((card) => {
+                        card.classList.remove("bg-green-500");
+                    });
+                    div.classList.add("bg-green-500");
+
+                    // Store selected category ID
+                    selectedGroupID = item.id;
+                });
+            });
+            // Make sure the container is visible and timer starts
+            parentContainer.classList.remove("hidden");
+            parentContainer.classList.add("flex");
+            nextContainer.classList.add("hidden");
+            timebar.classList.remove("hidden");
+            startTimer();
         }
 
-        // Function to handle card selection
-        function cardSelector() {
-            const cards = document.querySelectorAll(".selectable-card");
-            cards.forEach((card) => {
-                card.addEventListener("click", () => {
-                    cards.forEach((c) => c.classList.remove("bg-green-500"));
-                    card.classList.add("bg-green-500");
+        // Step 2: Display Filtered Data
+        function displayFilteredData(groupID) {
+            const filteredData = data.filter((x) => x.category_id === groupID);
+            if (filteredData.length === 0) {
+                console.error(`No data found for category ID ${groupID}`);
+                return;
+            }
+            nextContainer.innerHTML = ""; // Clear previous items
+            filteredData.forEach((item) => {
+                const div = document.createElement("div");
+                div.id = item.choice_id;
+                div.className =
+                    "selectable-card w-[calc(50%-1rem)] max-w-[130px] min-w-[100px] min-h-[100px] bg-white shadow rounded-lg p-1 cursor-pointer";
 
-                    selectedCardID = card.id;
+                const img = document.createElement("img");
+                if (item.choice_image) {
+                    img.src = item.choice_image;
+                }
+                img.className = "rounded-lg";
+
+                div.appendChild(img);
+                nextContainer.appendChild(div);
+                // Add click listener to handle selection
+                div.addEventListener("click", () => {
+                    document.querySelectorAll(".selectable-card").forEach((card) => {
+                        card.classList.remove("bg-green-500");
+                    });
+                    div.classList.add("bg-green-500");
+                    // Store selected category ID
+                    selectedCardID = item.choice_id;
                 });
+            });
+
+            // Switch visibility between containers
+            parentContainer.classList.add("hidden");
+            nextContainer.classList.remove("hidden");
+            nextContainer.classList.add("flex");
+
+            // Start a new timer for the filtered data view
+            startEndTimer(() => {
+                console.log("Filtered data step complete. Timer ended.");
             });
         }
 
-        // Move to the next step after card selection
-        function switchToNextStep() {
-            if (selectedCardID !== null) {
-                selectedGroupID = selectedCardID;
-                mainCards.classList.add("hidden");
+        // Timer Function
+        function startTimer() {
+            clearInterval(timerInterval); // Reset any existing timer
+            totalTime = 0;
+            width = 0;
+            progressBar.style.width = "0%"; // Reset the progress bar
 
-                // Hide all other menus and show the selected one
-                Object.keys(menus).forEach((key) => {
-                    if (menus[key]) menus[key].classList.add("hidden");
-                });
-                if (menus[selectedGroupID]) {
-                    menus[selectedGroupID]?.classList.remove("hidden");
-                    menus[selectedGroupID]?.classList.add("flex");
-                }
-
-                // Start the timer for the end step
-                startTimerEnd();
-            }
-        }
-
-        function startTimerEnd() {
-            clearInterval(timerInterval);
-            totalTime = 0; 
             timerInterval = setInterval(() => {
-                totalTime += 0.1; 
-                width = (totalTime / sectionDuration) * 100; 
+                totalTime += 0.1; // Increment accumulated time
+                width = (totalTime / sectionDuration) * 100;
                 progressBar.style.width = `${width}%`;
 
                 if (width >= 100) {
-                    clearInterval(timerInterval);
-                    if (menus[selectedGroupID]) {
-                        menus[selectedGroupID]?.classList.remove("flex");
-                        menus[selectedGroupID]?.classList.add("hidden");  
+                    if (selectedGroupID) {
+                        clearInterval(timerInterval);
+                        displayFilteredData(selectedGroupID);
+                    } else {
+                        clearInterval(timerInterval);
+                        console.error("No category selected!");
                     }
-                    timebar.classList.add("hidden");    
-                    event_before.classList.remove("max-w-[100px]");
-                    event_after.classList.remove("max-w-[100px]");  
-                    event_before.classList.add("max-w-[150px]");
-                    event_after.classList.add("max-w-[150px]");
-                    life.classList.add("hidden")    
                 }
             }, 100);
         }
 
-        // Ensure the elements are present
-        selectedCardID = 'resources';
-        life.classList.remove("hidden")    
-        event_before.classList.remove("max-w-[150px]");
-        event_after.classList.remove("max-w-[150px]");
-        event_before.classList.add("max-w-[100px]");
-        event_after.classList.add("max-w-[100px]");
+        function startEndTimer() {
+            clearInterval(timerInterval); // Reset any existing timer
+            totalTime = 0;
+            width = 0;
+            progressBar.style.width = "0%"; // Reset the progress bar
 
-        mainCards.classList.remove("hidden");
-        mainCards.classList.add("flex");
-        timebar.classList.remove("hidden");
+            timerInterval = setInterval(() => {
+                totalTime += 0.1; // Increment accumulated time
+                width = (totalTime / sectionDuration) * 100;
+                progressBar.style.width = `${width}%`;
 
-        startTimer();
-        cardSelector();  // Enable card selection
-        return selectedCardID;  // Return the globally updated selectedCardID
+                if (width >= 100) {
+                    clearInterval(timerInterval);
+                    life.classList.add('hidden');
+                    timebar.classList.add("hidden");
+                }
+            }, 100);
+        }
+
+        // Initialize and Start the Process
+        life.classList.remove('hidden');
+        displayCategories();
+
     } else if (status == "sick"){
         const sickness = document.getElementById("sick");
         const progressBar = document.getElementById("timebar-progress-sick");
