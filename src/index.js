@@ -13,11 +13,6 @@ const server = createServer(app);
 const io = new Server(server);
 const gameInstance = new GameServer(io, new Database("tg.db"));
 
-setInterval(() => {
-  console.log("Sending new turn")
-  gameInstance.sendNewTurn();
-}, 15 * 1000);
-
 app
   .set("view engine", "ejs")
   .set("views", join(__dirname, "presentation"))
