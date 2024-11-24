@@ -89,6 +89,7 @@ class GameServer {
    * @type {Object} - Tracks each player's choices and stats
    */
   playersStats = {};
+  
 
   /**
   * @constructor
@@ -126,11 +127,11 @@ class GameServer {
     this.turnEvent = eventId;
 
     let data = this.db.getTurnData(eventId);
-    this.server.emit("newTurn", this.turnNumber, data);
+    this.server.emit("newTurn", this.turnNumber, data, this.playersStats);
     this.turnNumber += 1;
 
     setTimeout(() => {
-      calculateRound()
+      this.calculateRound();
     }, 15 * 1000);
   }
 
@@ -138,8 +139,14 @@ class GameServer {
     let playerLaterStats = [];
     let hasCooked = false;
     let event = 0;
-
-    for (let player of this.playersStats) {
+    
+    if (Object.entries(this.playersStats).length == 0) {
+      console.log(this.playersStats);
+      this.sendNewTurn();
+      return;
+    }
+    console.log(this.playersStats);
+    for (const player of this.playersStats) {
 
       switch (player.choices[this.turnNumber - 1]) {
         case 1: { // water
@@ -348,13 +355,43 @@ class GameServer {
     let famineIndex = 1;
     switch (this.turnEvent) {
       case 1: {
+        // normal
         break;
       }
       case 2: {
+        // famine
         famineIndex = 1.5;
         break;
       }
+      case 3: {
+        // attack
+        if (this.state.safety.fences < 5){
+          this.playersStats[alivePlayers[Math.floor(Math.random() * alivePlayers.length)].id].status = "dead";
+        }
+        break;
+      }
+      case 4: {
+        // storm
+        if (this.state.safety.shulter < 2){
+          this.playersStats[alivePlayers[Math.floor(Math.random() * alivePlayers.length)].id].status = "dead";
+          this.state.fire = 0;
+          this.state.safety.shulter -= 1;
+          this.state.water += 5;
+        } else {
+          this.state.fire = 0;
+          this.state.safety.shulter -= 1;
+          this.state.water += 8;
+        }
+        break;
+      }
+      case 5: {
+        // loot box
+        this.state.water += 6;
+        this.state.food += 7;
+        break;
+      }
       case 6: {
+        // kidnap
         const kidnappedPeople = this.playerStats.filter(player => player.status === "kidnapped");
         if (event < alivePlayers.length / 10) {
           for (let player of kidnappedPeople) {
@@ -367,12 +404,46 @@ class GameServer {
         }
         break;
       }
-      case 3: {
-
+      case 7: {
+        // incendie
+        if (event < alivePlayers.length / 8){
+          this.state.wood -= 6;
+          if (this.state.wood < 0){
+            this.state.wood = 0;
+          }
+          this.state.waterCap -= 5;
+          this.state.woodCap -= 5;
+          this.state.foodCap -= 5;
+          this.state.safety.shulter -= 1;
+          this.state.safety.fence -= 1;
+        } 
+        break;
+      } case 8: {
+        sickPlayers = this.playersStats.filter(player => player.status === "sick");
+        if (event < alivePlayers.length / 10){
+          this.playersStats[sickPlayers[Math.floor(Math.random() * sickPlayers.length)].id].status = "dead";
+        }
         break;
       }
     }
 
+    sickPlayers = this.playersStats.filter(player => player.status === "sick");
+    for (let player of sickPlayers) {
+      player.status = "alive";
+    } 
+    
+    
+
+    alivePlayers = this.playersStats.filter(player => player.status === "alive");
+    if (!hasCooked){
+      let randoms = [];
+      for (i = 0; i < Math.floor(Math.random() * 4); i++) {
+        randoms.push(Math.floor(Math.random() * alivePlayers.length));
+      }
+      for (let random of randoms) {
+        this.playersStats[alivePlayers[random].id].status = "sick";
+      }
+    }
     for (let player of alivePlayers) {
       this.state.water -= 1 * famineIndex;
       this.state.food -= 1 * famineIndex;
@@ -411,9 +482,8 @@ class GameServer {
         this.playersStats[alivePlayers[random].id].status = "dead";
       }
     }
-
-
-
+    console.log(this.playersStats);
+    sendNewTurn();
   }
 
   /**
@@ -425,10 +495,11 @@ class GameServer {
   onPlayerPlayed(userId, turn, choice) {
     console.log(`Player ${userId} has played ${choice} at turn ${turn}`);
 
-    if (turn != this.turnNumber) return;
-
+    if (turn != this.turnNumber - 1) return;
+    console.log('test');
     // If the player doesn't exist in the stats object, initialize them
     if (!this.playersStats[userId]) {
+      console.log('test');
       this.playersStats[userId] = {
         id: userId,
         choices: [],

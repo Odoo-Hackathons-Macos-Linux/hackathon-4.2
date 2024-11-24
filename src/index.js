@@ -39,6 +39,7 @@ app.get("/card", (_req, res) => {
   });
 });
 
+gameInstance.sendNewTurn();
 io.on("connection", (socket) => {
   console.log("Socket connected: " + socket.id);
 
@@ -49,7 +50,6 @@ io.on("connection", (socket) => {
     // Pass the userId, turn, and choice to the GameServer's method
     gameInstance.onPlayerPlayed(userId, turn, choice);
   });
-
   // You can also track disconnect events and do cleanup (if necessary)
   socket.on("disconnect", () => {
     console.log("Socket disconnected: " + socket.id);

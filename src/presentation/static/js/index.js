@@ -22,7 +22,7 @@ console.log("User ID: " + userId);  // Print user ID to the console
 
 let totalydead = localStorage.getItem("totalydead") == "true";  // Retrieve the stored death status from localStorage
 
-socket.on("newTurn", (currentTurn, data) => {
+socket.on("newTurn", (currentTurn, data, ) => {
     turn = currentTurn;
     // Check if the player is dead
     if (totalydead) {
@@ -37,7 +37,7 @@ socket.on("newTurn", (currentTurn, data) => {
     wait.classList.add("hidden");
     newTurn.classList.remove("hidden");
 
-    let status = ["alive", "sick"];
+    let status = ["alive"];
     let choice = getRandomElement(status);
     if (choice == "dead") {
         startTurn(choice, data); 
