@@ -22,11 +22,9 @@ app.get("/", (_req, res) => {
   res.render("pages/index", { eventTypes: "None" });
 });
 
-
 app.get("/render", (_req, res) => {
-  res.render("pages/components/simulation");
+  res.render("pages/components/simulationB");
 });
-
 
 app.get("/card", (_req, res) => {
   let eventTypes = [
@@ -43,41 +41,43 @@ app.get("/card", (_req, res) => {
   res.render("pages/card", {
     eventTypes: eventTypes[id],
   });
-  app.get("/chart", (_req, res) => {
-    res.render("pages/chartjs");
+});
+
+// Move the "/chart" route outside of the "/card" route
+app.get("/chart", (_req, res) => {
+  res.render("pages/chartjs");
+});
+
+app.get("/game", (_req, res) => {
+  res.render("pages/game");
+});
+
+app.post("/game/newturn", (_req, res) => {
+  gameInstance.sendNewTurn();
+  res.redirect("/game");
+});
+
+app.post("/game/stop", (_req, res) => {
+  gameInstance.sendEndGame();
+  res.redirect("/game");
+});
+
+io.on("connection", (socket) => {
+  console.log("Socket connected: " + socket.id);
+
+  // When a player plays their turn, receive their userId, turn, and choice
+  socket.on("played", (userId, turn, choice) => {
+    gameInstance.onPlayerPlayed(userId, turn, choice);
   });
 
-  app.get("/game", (_req, res) => {
-    res.render("pages/game");
+  // You can also track disconnect events and do cleanup (if necessary)
+  socket.on("disconnect", () => {
+    console.log("Socket disconnected: " + socket.id);
   });
+});
 
-  app.post("/game/newturn", (_req, res) => {
-    gameInstance.sendNewTurn();
-    res.redirect("/game");
-  });
+server.listen(3000, () => {
+  console.log("server running at http://localhost:3000");
+});
 
-  app.post("/game/stop", (_req, res) => {
-    gameInstance.sendEndGame();
-    res.redirect("/game");
-  });
-
-  io.on("connection", (socket) => {
-    console.log("Socket connected: " + socket.id);
-
-    // When a player plays their turn, receive their userId, turn, and choice
-    socket.on("played", (userId, turn, choice) => {
-      gameInstance.onPlayerPlayed(userId, turn, choice);
-    });
-    // You can also track disconnect events and do cleanup (if necessary)
-    socket.on("disconnect", () => {
-      console.log("Socket disconnected: " + socket.id);
-    });
-  });
-
-
-  server.listen(3000, () => {
-    console.log("server running at http://localhost:3000");
-  });
-
-
-  export { gameInstance };
+export { gameInstance };

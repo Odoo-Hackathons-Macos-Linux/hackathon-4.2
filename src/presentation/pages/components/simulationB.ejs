@@ -1,0 +1,205 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Three.js Animation Example</title>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+        "three/examples/jsm/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+      }
+    }
+  </script>
+  <script src="/socket.io/socket.io.js"></script>
+  <link href="/css/output.css" rel="stylesheet">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      width: 100%;
+      height: 100%;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+</head>
+<body class="w-full h-screen">
+  <div>
+    <canvas id="island" class="w-full h-screen"></canvas>
+  </div>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+
+    const socket = io();
+
+    let playerCount = 0;  // Declare playerCount outside the socket event
+    let playerHouses = []; // Array to hold multiple player houses
+    let camera, scene, renderer;
+
+    // Initialize Three.js scene
+    function initScene() {
+      scene = new THREE.Scene();
+
+      // Initialize renderer
+      renderer = new THREE.WebGLRenderer({
+        canvas: document.querySelector('#island'),
+        antialias: true,
+        powerPreference: "high-performance",
+        precision: "highp"
+      });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(window.devicePixelRatio);
+
+      window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      });
+    }
+
+    // Retrieve the camera from the scene
+    function retrieveListOfCameras() {
+      scene.traverse((object) => {
+        if (object.isCamera) {
+          camera = object;
+        }
+      });
+
+      if (!camera) {
+        console.error('No camera found in the scene!');
+        return;
+      }
+
+      camera.fov = 39;  // Set field of view (fov)
+      camera.near = 0.1; // Set near plane
+      camera.far = 5000; // Set far plane
+      camera.updateProjectionMatrix();
+    }
+
+    socket.on('connect', () => {
+      console.log('Connected with socket ID:', socket.id);
+    });
+
+    socket.on("newTurn", (currentTurn, data, playersStats) => {
+      if (!playersStats) {
+        console.log("No players stats");
+      } else {
+        console.log(playersStats);
+        console.log(currentTurn);
+
+        // Set player count
+        playerCount = Object.keys(playersStats).length;
+        console.log("Player count:", playerCount);
+
+        loadGLTFModel('/blenderModels/scene.gltf')
+          .then(() => {
+            // After loading the model, create the player houses
+            createPlayerHouses();
+            requestAnimationFrame(animate);
+          })
+          .catch((error) => {
+            console.error('Error loading GLTF model:', error);
+          });
+      }
+    });
+
+    // Load GLTF model and create player houses
+    const loadGLTFModel = (path) => {
+      return new Promise((resolve, reject) => {
+        const loader = new GLTFLoader();
+        loader.load(path, (gltf) => {
+          scene.add(gltf.scene);
+          resolve();
+        }, undefined, reject);
+      });
+    };
+
+    function createPlayerHouses() {
+      // Clear previous houses
+      playerHouses.forEach(house => scene.remove(house));
+      playerHouses = [];
+
+      for (let i = 0; i < playerCount; i++) {
+        let playerHouse = scene.getObjectByName('PlayerHouse');
+        playerHouse.visible = true;
+        if (playerHouse) {
+          playerHouse = playerHouse.clone(); // Clone the model for multiple houses
+          playerHouse.position.set(-4, 0, 0);  // Starting position for all houses
+          scene.add(playerHouse);
+          playerHouses.push(playerHouse);  // Add to the array of player houses
+        }
+      }
+    }
+
+    // Zones array with target positions
+    const zones = [
+      {name: 'fishZone', x: 29, y: 0, z: 24},
+      {name: 'huntZone', x: 35, y: 0, z: -30},
+      {name: 'jungleZone', x: 40, y: 0, z: -26},
+      {name: 'securityZone', x: 12, y: 0, z: -26},
+      {name: 'woodZone', x: -33, y: 0, z: -20},
+      {name: 'fireZone', x: -15, y: 0, z: -15},
+      {name: 'fieldZone', x: -12, y: 0, z: -3},
+      {name: 'toolsZone', x: -18, y: 0, z: 14},
+      {name: 'laboZone', x: -15, y: 0, z: 17},
+      {name: 'waterZone', x: -15, y: 0, z: 35},
+      {name: 'houseZone', x: 0, y: 0, z: 0},
+    ];
+
+    let previousTimestamp = 0;
+
+    // Animation loop
+    function animate(timestamp) {
+      const deltaTime = timestamp - (previousTimestamp || timestamp);
+      previousTimestamp = timestamp;
+
+      playerHouses.forEach((playerHouse, index) => {
+        animatePlayer(deltaTime, playerHouse, index);
+      });
+
+      renderer.render(scene, camera);
+      requestAnimationFrame(animate);
+    }
+
+    function animatePlayer(deltaTime, playerHouse, index) {
+      // Get the zone name for each player
+      const zoneName = zones[index % zones.length].name;
+      const zone = zones.find(z => z.name === zoneName);
+
+      // Move the player house towards the target position in the zone
+      const targetPosition = new THREE.Vector3(zone.x, zone.y, zone.z);
+
+      const speedFactor = 0.001;
+      
+      // Animate movement to the target position
+      playerHouse.position.lerp(targetPosition, deltaTime * speedFactor);
+    }
+
+    // Initialize the scene and start socket listening
+    initScene();
+
+    // Load the model and retrieve the camera after model load
+    loadGLTFModel('/blenderModels/scene.gltf')
+      .then(() => {
+        retrieveListOfCameras(); // Retrieve the camera after the model is loaded
+        requestAnimationFrame(animate); // Start animation loop once everything is ready
+      })
+      .catch((error) => {
+        console.error('Error loading GLTF model:', error);
+      });
+
+  </script>
+</body>
+</html>
