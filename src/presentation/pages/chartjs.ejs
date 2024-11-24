@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Charts</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="/css/output.css" rel="stylesheet">
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/js/chart-assets/chartOptions.js"></script>
+    <style>
+        canvas {
+            display: none; /* Hide charts initially */
+        }
+    </style>
+</head>
+<body class="bg-black text-center">
+    <div class="charts-container flex items-center justify-center min-h-screen">
+        <div class="chart-column">
+            <canvas id="myChart" width="550" height="280"></canvas>
+            <div class="legend">
+                <span>🔥</span>
+            </div>
+            <canvas id="myChart2" width="550" height="280"></canvas>
+            <div class="legend">
+                <span>🔥</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const socket = io();
+        let chart1, chart2; // References to chart instances
+
+        socket.on('connect', () => {
+            console.log('Connected with socket ID:', socket.id);
+        });
+
+        socket.on("dataInfo", (currentTurn, data) => {
+            if (Array.isArray(data) && data.length >= 2) {
+                console.log("Received data:", data);
+                updateCharts(data);
+            } else {
+                console.error("Invalid data received:", data);
+            }
+        });
+
+        function getChartOptions() {
+            return {
+                scales: {
+                x: { display: false },
+                y: { beginAtZero: true, display: false }
+                },
+                plugins: {
+                legend: { display: false }
+                },
+                animation: {
+                duration: 1250,
+                easing: 'easeInOutQuad'
+                }
+            
+            };
+            }
+
+        function updateCharts(globalData) {
+            const data1 = globalData[0];
+            console.log(data1);
+            const data2 = globalData[1];
+            console.log(data2);
+            const datamin1 = [25, 21, 15, 10];
+            const datamin2 = [22, 20, 15, 10];
+
+            // Display the canvases if hidden
+            document.getElementById('myChart').style.display = 'block';
+            document.getElementById('myChart2').style.display = 'block';
+
+            // If charts already exist, update them
+            if (chart1) {
+                chart1.data.datasets[0].data = data1;
+                chart1.update();
+            } else {
+                const ctx = document.getElementById('myChart').getContext('2d');
+                chart1 = createChart(ctx, data1, datamin1);
+            }
+
+            if (chart2) {
+                chart2.data.datasets[0].data = data2;
+                chart2.update();
+            } else {
+                const ctx2 = document.getElementById('myChart2').getContext('2d');
+                chart2 = createChart(ctx2, data2, datamin2);
+            }
+        }
+
+        function createChart(ctx, data, datamin) {
+            return new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['0', '1', '2', '3'],
+                    datasets: [{
+                        label: 'Data',
+                        data: data,
+                        backgroundColor: (context) => {
+                            const chart = context.chart;
+                            const { chartArea } = chart;
+                            if (!chartArea) return null;
+
+                            return data.map((value, index) => {
+                                const dataminValue = datamin[index];
+                                return getGradient(chart, value, dataminValue, 0.2); // Background at 0.2 opacity
+                            });
+                        },
+                        borderColor: (context) => {
+                            const chart = context.chart;
+                            const { chartArea } = chart;
+                            if (!chartArea) return null;
+
+                            return data.map((value, index) => {
+                                const dataminValue = datamin[index];
+                                return getGradient(chart, value, dataminValue, 1); // Border at full opacity
+                            });
+                        },
+                        borderWidth: 2
+                    }]
+                },
+                options: getChartOptions()
+            });
+        }
+
+        function getGradient(chart, value, datamin, opacity) {
+            const { ctx, chartArea, scales: { y } } = chart;
+            if (!chartArea) return `rgba(200, 200, 200, ${opacity})`;
+        
+            const { top, bottom } = chartArea;
+            const valuePixel = y.getPixelForValue(value);
+            const dataminPixel = y.getPixelForValue(datamin);
+        
+            if (!isFinite(valuePixel) || !isFinite(dataminPixel)) {
+                console.error("Invalid pixel positions.");
+                return `rgba(200, 200, 200, ${opacity})`;
+            }
+        
+            const totalHeight = bottom - top;
+            const valuePosition = Math.min(1, Math.max(0, (bottom - valuePixel) / totalHeight));
+            const dataminPosition = Math.min(1, Math.max(0, (bottom - dataminPixel) / totalHeight));
+        
+            const gradient = ctx.createLinearGradient(0, bottom, 0, top);
+        
+            const startColor = { r: 255, g: 49, b: 3 }; // Red
+            const endColor = { r: 45, g: 255, b: 14 }; // Green
+        
+            function getColor(ratio) {
+                const r = Math.floor(startColor.r + (endColor.r - startColor.r) * ratio);
+                const g = Math.floor(startColor.g + (endColor.g - startColor.g) * ratio);
+                const b = Math.floor(startColor.b + (endColor.b - startColor.b) * ratio);
+                return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+            }
+        
+            gradient.addColorStop(0, getColor(0));
+            gradient.addColorStop(dataminPosition, getColor(0.5));
+            gradient.addColorStop(valuePosition, getColor(1));
+        
+            return gradient;
+        }        
+    </script>
+</body>
+</html>

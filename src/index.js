@@ -13,11 +13,6 @@ const server = createServer(app);
 const io = new Server(server);
 const gameInstance = new GameServer(io, new Database("tg.db"));
 
-setInterval(() => {
-  console.log("Sending new turn")
-  gameInstance.sendNewTurn();
-}, 15 * 1000);
-
 app
   .set("view engine", "ejs")
   .set("views", join(__dirname, "presentation"))
@@ -48,29 +43,41 @@ app.get("/card", (_req, res) => {
   res.render("pages/card", {
     eventTypes: eventTypes[id],
   });
-});
-
-io.on("connection", (socket) => {
-  console.log("Socket connected: " + socket.id);
-
-  // When a player plays their turn, receive their userId, turn, and choice
-  socket.on("played", (userId, turn, choice) => {
-    console.log(`Player ${userId} made a choice: ${choice} on turn ${turn}`);
-
-    // Pass the userId, turn, and choice to the GameServer's method
-    gameInstance.onPlayerPlayed(userId, turn, choice);
+  app.get("/chart", (_req, res) => {
+    res.render("pages/chartjs");
   });
 
-  // You can also track disconnect events and do cleanup (if necessary)
-  socket.on("disconnect", () => {
-    console.log("Socket disconnected: " + socket.id);
+  app.get("/game", (_req, res) => {
+    res.render("pages/game");
   });
-});
+
+  app.post("/game/newturn", (_req, res) => {
+    gameInstance.sendNewTurn();
+    res.redirect("/game");
+  });
+
+  app.post("/game/stop", (_req, res) => {
+    gameInstance.sendEndGame();
+    res.redirect("/game");
+  });
+
+  io.on("connection", (socket) => {
+    console.log("Socket connected: " + socket.id);
+
+    // When a player plays their turn, receive their userId, turn, and choice
+    socket.on("played", (userId, turn, choice) => {
+      gameInstance.onPlayerPlayed(userId, turn, choice);
+    });
+    // You can also track disconnect events and do cleanup (if necessary)
+    socket.on("disconnect", () => {
+      console.log("Socket disconnected: " + socket.id);
+    });
+  });
 
 
-server.listen(3000, () => {
-  console.log("server running at http://localhost:3000");
-});
+  server.listen(3000, () => {
+    console.log("server running at http://localhost:3000");
+  });
 
 
-export { gameInstance };
+  export { gameInstance };

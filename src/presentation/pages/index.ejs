@@ -10,8 +10,8 @@
     <link href="/css/cards.css" rel="stylesheet" />
   </head>
   <body class="bg-black h-screen">
-    <div id="wait" class="">
-      <p class="text-white">Waiting for the next turn</p> 
+    <div id="wait" class="flex justify-center items-center h-screen">
+      <div class="loader"></div>
     </div>
 
     <div id="newTurn" class="hidden">
@@ -20,6 +20,9 @@
       </div>
       <div id="sick" class="hidden">
         <%- include('components/sick')%>
+      </div>
+      <div id="kidnapped" class="hidden">
+        <%- include('components/kidnapped')%>
       </div>
       <div id="dead" class="hidden">
         <%- include('components/dead') %>

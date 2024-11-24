@@ -45,9 +45,9 @@ INSERT INTO categories (id, name, image) VALUES
   (2, 'construction', 'construction/construction.jpeg'),
   (3, 'exploration', 'exploration/exploration.jpeg'),
   (4, 'technology', 'technology/technology.jpeg'),
-  (5, 'save', 'autre/save.jpeg'),
-  (6, 'firefighter', 'autre/firefighter.jpeg'),
-  (7, 'antidote', 'autre/antidote.jpeg');
+  (5, 'save', 'event/save.jpeg'),
+  (6, 'firefighter', 'event/firefighter.jpeg'),
+  (7, 'antidote', 'event/antidote.webp');
 
 INSERT INTO events_categories (event_id, category_id) VALUES
   (1, 1),
@@ -112,10 +112,10 @@ INSERT INTO choices (category_id, name, image) VALUES
 
   (4, 'tools', 'technology/tools.jpeg'),
   (4, 'transports', 'technology/transport.jpeg'),
-  (4, 'security', 'technology/security.jpeg'),
+  (4, 'security', 'technology/securite.jpeg'),
   (4, 'agriculture', 'technology/agriculture.jpeg'),
 
-  (5, 'save', 'autre/save.jpeg'),
-  (6, 'firefighter', 'autre/firefighter.jpeg'),
-  (7, 'antidote', 'autre/antidote.jpeg');
+  (5, 'save', 'event/save.jpeg'),
+  (6, 'firefighter', 'event/firefighter.jpeg'),
+  (7, 'antidote', 'event/antidote.jpeg');
 
