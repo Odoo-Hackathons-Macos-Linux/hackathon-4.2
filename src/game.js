@@ -571,9 +571,8 @@ class GameServer {
     let deadPlayers = Object.values(this.playersStats).filter(player => player.status == "dead");
     let totalPlayers = Object.values(this.playersStats).filter(player => player.status !== "dead");
     let data = [this.state.water, this.state.food, this.state.wood, this.state.fire];
-    let dataMin = [totalPlayers, totalPlayers, 0, 0];
     let data2 = [alivePlayers.length, sickPlayers.length, kidnappedPlayers.length, deadPlayers.length];
-    return [data, data2, dataMin];
+    return [data, data2];
   }
 }
 
