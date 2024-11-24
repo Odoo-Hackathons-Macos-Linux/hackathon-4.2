@@ -33,5 +33,12 @@ export class Database {
     return query.all(eventId);
   }
 
+  getPersonnalityData() {
+    const query = this.db.prepare(`
+      SELECT ch.id, ch.personnality_type
+      FROM choices ch`);
+
+    return query.all();
+  }
 }
 

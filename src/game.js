@@ -103,7 +103,7 @@ class GameServer {
     this.db = db;
     this.state = new GameState();
 
-    // db.init()
+    db.init()
   }
 
   /**
@@ -561,7 +561,7 @@ class GameServer {
   sendEndGame() {
     console.log(this.playersStats);
     console.log("sendEndGame (everybody died)");
-    this.server.emit("endGame");
+    this.server.emit("endGame", this.playersStats, this.db.getPersonnalityData());
   }
 
   getGameData() {
