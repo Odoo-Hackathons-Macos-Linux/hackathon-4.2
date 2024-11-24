@@ -27,6 +27,12 @@ app.get("/", (_req, res) => {
   res.render("pages/index", { eventTypes: "None" });
 });
 
+
+app.get("/render", (_req, res) => {
+  res.render("pages/components/simulation");
+});
+
+
 app.get("/card", (_req, res) => {
   let eventTypes = [
     "None",
