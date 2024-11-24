@@ -155,7 +155,7 @@ class GameServer {
     setTimeout(() => {
       this.calculateRound();
       this.server.emit("dataInfo", this.turnNumber, this.getGameData());
-    }, 15 * 1000);
+    }, 15.2 * 1000);
   }
 
   calculateRound() {

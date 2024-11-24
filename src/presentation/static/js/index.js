@@ -59,20 +59,20 @@ socket.on("newTurn", (currentTurn, data, playersStats) => {
     setTimeout(() => {
       wait.classList.remove("hidden");
       newTurn.classList.add("hidden");
-    }, 10000);
+    }, 15000);
   } else if (choice == "kidnapped") {
     startTurn(choice, data);
     setTimeout(() => {
       wait.classList.remove("hidden");
       newTurn.classList.add("hidden");
-    }, 10000);
+    }, 15000);
   } else {
     startTurn(choice, data);
     setTimeout(() => {
       socket.emit("played", userId, turn, correctedIDfun(selectedCardID));
       wait.classList.remove("hidden");
       newTurn.classList.add("hidden");
-    }, 10000);
+    }, 15000);
   }
 });
 
@@ -109,7 +109,7 @@ function startTurn(status, data) {
     let width = 0;
     let timerInterval;
     let totalTime = 0;
-    let sectionDuration = 4.6; // Timer duration in seconds
+    let sectionDuration = 6.9; // Timer duration in seconds
     let selectedGroupID = 1;
 
     // Step 1: Create unique categories dynamically
@@ -284,7 +284,7 @@ function startTurn(status, data) {
     let width = 0;
     let timerInterval;
     let totalTime = 0;
-    let Duration = 4.6 * 2; // Duration for each section in seconds
+    let Duration = 6.9 * 2; // Duration for each section in seconds
 
     function startTimer() {
       clearInterval(timerInterval);
