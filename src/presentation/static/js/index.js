@@ -21,7 +21,6 @@ function generateUniqueId() {
 console.log("User ID: " + userId);  // Print user ID to the console
 
 let totalydead = localStorage.getItem("totalydead") == "true";  // Retrieve the stored death status from localStorage
-
 socket.on("newTurn", (currentTurn, data, playersStats) => {
     turn = currentTurn;
     if (!playersStats[userId]){
@@ -391,3 +390,53 @@ function startTurn(status, data) {
         deadCard.classList.add("flex");
     }
 }
+
+const mostSelectedVal = (choices) => {
+    if (!choices || choices.length === 0) {
+        return null; // Return null if choices are undefined or empty
+    }
+
+    // Frequency map to count occurrences of each val
+    const frequencyMap = {};
+
+    for (const choice of choices) {
+        if (choice.val) {
+            frequencyMap[choice.val] = (frequencyMap[choice.val] || 0) + 1;
+        }
+    }
+
+    // Find the val with the maximum count
+    let maxCount = 0;
+    let mostSelected = null;
+
+    for (const [val, count] of Object.entries(frequencyMap)) {
+        if (count > maxCount) {
+            maxCount = count;
+            mostSelected = val;
+        }
+    }
+
+    return mostSelected;
+};
+
+socket.on("endGame", (playersStats, personnalityData) => {
+    if (!playersStats[userId]){
+        return;
+    }
+    let image_personnality;
+    const result = mostSelectedVal(playersStats[userId].choices);
+    wait.classList.add("hidden"); 
+    newTurn.classList.add("hidden");
+    
+    const endTurn = document.getElementById("end");
+    endTurn.classList.remove("hidden");
+
+    const imgEventSrc = "/img/" + personnalityData[result].personnality_type;
+    console.log(imgEventSrc);
+    const deadNowImg = document.querySelector("#end-now img");
+    console.log(deadNowImg);
+    if (deadNowImg) {
+        console.log(imgEventSrc);
+        deadNowImg.src = imgEventSrc;
+    }
+});

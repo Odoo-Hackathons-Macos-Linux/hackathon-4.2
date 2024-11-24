@@ -549,12 +549,12 @@ class GameServer {
 
   getPlayerAlive(){
     return Object.values(this.playersStats).filter(player => player.status === "alive").length > 0;
-  }
+  }x
 
   sendEndGame() { 
     console.log(this.playersStats);
     console.log("sendEndGame (everybody died)");
-    this.server.emit("endGame");
+    this.server.emit("endGame", this.playersStats, this.db.getPersonnalityData());
   }
 
   getGameData() {
