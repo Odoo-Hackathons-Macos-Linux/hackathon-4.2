@@ -45,6 +45,10 @@ app.post("/game/reset", (_req, res) => {
   res.redirect("/game");
 });
 
+app.get("/render", (_req, res) => {
+  res.render("pages/components/simulationB");
+});
+
 io.on("connection", (socket) => {
   console.log("Socket connected: " + socket.id);
 

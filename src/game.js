@@ -5,22 +5,22 @@ class GameState {
   /** 
    * @type {number}
    */
-  water = 20;
+  water = 60;
 
   /** 
     * @type {number}
     */
-  waterCap = 30;
+  waterCap = 60;
 
   /** 
    * @type {number}
    */
-  food = 20;
+  food = 50;
 
   /** 
     * @type {number}
     */
-  foodCap = 30;
+  foodCap = 50;
 
   /** 
   * @type {number}
@@ -30,7 +30,7 @@ class GameState {
   /** 
     * @type {number}
     */
-  woodCap = 20;
+  woodCap = 30;
 
   /**
   * @type {number}
