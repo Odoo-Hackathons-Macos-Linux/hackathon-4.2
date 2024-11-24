@@ -10,20 +10,55 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="/js/chart-assets/chartOptions.js"></script>
     <style>
+        .charts-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 50px; /* Add spacing between charts */
+        }
+
+        .chart-container {
+            position: relative;
+            width: 550px;
+            height: 280px;
+        }
+
+        .legend {
+            position: absolute;
+            bottom: -25px; /* Position just below the chart */
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .legend span {
+            font-size: 24px;
+            pointer-events: none; /* Make emojis unclickable */
+        }
+
         canvas {
-            display: none; /* Hide charts initially */
+            display: block; /* Ensure canvas is visible */
         }
     </style>
 </head>
 <body class="bg-black text-center">
-    <div class="charts-container flex items-center justify-center min-h-screen">
-        <div class="chart-column">
+    <div class="charts-container">
+        <div class="chart-container">
             <canvas id="myChart" width="550" height="280"></canvas>
             <div class="legend">
                 <span>🔥</span>
+                <span>🔥</span>
+                <span>🔥</span>
+                <span>🔥</span>
             </div>
+        </div>
+        <div class="chart-container">
             <canvas id="myChart2" width="550" height="280"></canvas>
             <div class="legend">
+                <span>🔥</span>
+                <span>🔥</span>
+                <span>🔥</span>
                 <span>🔥</span>
             </div>
         </div>
@@ -31,7 +66,7 @@
 
     <script>
         const socket = io();
-        let chart1, chart2; // References to chart instances
+        let chart1, chart2;
 
         socket.on('connect', () => {
             console.log('Connected with socket ID:', socket.id);
@@ -46,42 +81,57 @@
             }
         });
 
+        function alignEmojis(chart, legendElement) {
+            const meta = chart.getDatasetMeta(0);
+            const barPositions = meta.data.map(bar => bar.x);
+            const emojis = legendElement.querySelectorAll('span');
+
+            if (emojis.length !== barPositions.length) {
+                console.error("Number of emojis does not match number of bars.");
+                return;
+            }
+
+            barPositions.forEach((barX, index) => {
+                const emoji = emojis[index];
+                emoji.style.position = 'absolute';
+                emoji.style.left = `${barX}px`;
+                emoji.style.transform = 'translateX(-50%)'; /* Center emoji */
+            });
+        }
+
         function getChartOptions() {
             return {
                 scales: {
-                x: { display: false },
-                y: { beginAtZero: true, display: false }
+                    x: { display: false },
+                    y: { beginAtZero: true, display: false }
                 },
                 plugins: {
-                legend: { display: false }
+                    legend: { display: false }
                 },
                 animation: {
-                duration: 1250,
-                easing: 'easeInOutQuad'
+                    duration: 1250,
+                    easing: 'easeInOutQuad',
+                    onComplete: function () {
+                        const chartCanvas = this.chart.canvas;
+                        const legendElement = chartCanvas.nextElementSibling;
+                        alignEmojis(this.chart, legendElement);
+                    }
                 }
-            
             };
-            }
+        }
 
         function updateCharts(globalData) {
             const data1 = globalData[0];
-            console.log(data1);
             const data2 = globalData[1];
-            console.log(data2);
-            const datamin1 = [25, 21, 15, 10];
-            const datamin2 = [22, 20, 15, 10];
+            const datamin1 = globalData[2];
+            const datamin2 = [0, 0, 0, 100];
 
-            // Display the canvases if hidden
-            document.getElementById('myChart').style.display = 'block';
-            document.getElementById('myChart2').style.display = 'block';
-
-            // If charts already exist, update them
             if (chart1) {
                 chart1.data.datasets[0].data = data1;
                 chart1.update();
             } else {
-                const ctx = document.getElementById('myChart').getContext('2d');
-                chart1 = createChart(ctx, data1, datamin1);
+                const ctx1 = document.getElementById('myChart').getContext('2d');
+                chart1 = createChart(ctx1, data1, datamin1);
             }
 
             if (chart2) {
@@ -108,7 +158,7 @@
 
                             return data.map((value, index) => {
                                 const dataminValue = datamin[index];
-                                return getGradient(chart, value, dataminValue, 0.2); // Background at 0.2 opacity
+                                return getGradient(chart, value, dataminValue, 0.2);
                             });
                         },
                         borderColor: (context) => {
@@ -118,7 +168,7 @@
 
                             return data.map((value, index) => {
                                 const dataminValue = datamin[index];
-                                return getGradient(chart, value, dataminValue, 1); // Border at full opacity
+                                return getGradient(chart, value, dataminValue, 1);
                             });
                         },
                         borderWidth: 2
@@ -137,8 +187,8 @@
             const dataminPixel = y.getPixelForValue(datamin);
         
             if (!isFinite(valuePixel) || !isFinite(dataminPixel)) {
-                console.error("Invalid pixel positions.");
-                return `rgba(200, 200, 200, ${opacity})`;
+                console.warn("Non-finite value detected in gradient calculation. Defaulting to neutral color.");
+                return `rgba(200, 200, 200, ${opacity})`; // Return a neutral fallback color
             }
         
             const totalHeight = bottom - top;
@@ -162,7 +212,7 @@
             gradient.addColorStop(valuePosition, getColor(1));
         
             return gradient;
-        }        
+        }
     </script>
 </body>
 </html>
