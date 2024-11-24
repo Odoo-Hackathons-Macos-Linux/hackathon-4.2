@@ -5,49 +5,47 @@ class GameState {
   /** 
    * @type {number}
    */
-  water;
+  water = 20;
 
   /** 
     * @type {number}
     */
-  waterCap;
+  waterCap = 20;
 
   /** 
    * @type {number}
    */
-  food;
+  food = 20;
 
   /** 
     * @type {number}
     */
-  foodCap;
+  foodCap = 20;
 
   /** 
   * @type {number}
   */
-  wood;
+  wood = 0;
 
   /** 
     * @type {number}
     */
-  woodCap;
+  woodCap = 20;
 
   /**
   * @type {number}
   */
-  fire;
-
-  /**
-  * @type {number}
-  */
-  cooking;
+  fire = 0;
 
   /**
    * @type {Object} safety
    * @type {number} safety.shulter
    * @type {number} safety.fences
    */
-  safety
+  safety = {
+    shulter: 0,
+    fences: 0,
+  }
 
   /**
   * @type {Object} technology
@@ -56,9 +54,13 @@ class GameState {
   * @type {number} technology.safety
   * @type {number} technology.agriculture
   */
-  technology
+  technology = {
+    tools: 0,
+    transports: 0,
+    safety: 0,
+    agriculture: 0,
 
-
+  }
 }
 
 class GameServer {
@@ -89,7 +91,7 @@ class GameServer {
    * @type {Object} - Tracks each player's choices and stats
    */
   playersStats = {};
-  
+
 
   /**
   * @constructor
@@ -139,14 +141,13 @@ class GameServer {
     let playerLaterStats = [];
     let hasCooked = false;
     let event = 0;
-    
+
     if (Object.entries(this.playersStats).length == 0) {
-      console.log(this.playersStats);
       this.sendNewTurn();
       return;
     }
-    console.log(this.playersStats);
-    for (const player of this.playersStats) {
+
+    for (const [id, player] of Object.entries(this.playersStats)) {
 
       switch (player.choices[this.turnNumber - 1]) {
         case 1: { // water
@@ -308,7 +309,7 @@ class GameServer {
         }
 
         default: {
-          playerLaterStats.push(player.choice[this.turnNumber - 1]);
+          playerLaterStats.push(player.choices[this.turnNumber - 1]);
         }
       }
     }
@@ -351,7 +352,7 @@ class GameServer {
     }
 
     // handle user consumption
-    let alivePlayers = this.playersStats.filter(player => player.status === "alive");
+    let alivePlayers = Object.values(this.playersStats).filter(player => player.status === "alive");
     let famineIndex = 1;
     switch (this.turnEvent) {
       case 1: {
@@ -365,14 +366,14 @@ class GameServer {
       }
       case 3: {
         // attack
-        if (this.state.safety.fences < 5){
+        if (this.state.safety.fences < 5) {
           this.playersStats[alivePlayers[Math.floor(Math.random() * alivePlayers.length)].id].status = "dead";
         }
         break;
       }
       case 4: {
         // storm
-        if (this.state.safety.shulter < 2){
+        if (this.state.safety.shulter < 2) {
           this.playersStats[alivePlayers[Math.floor(Math.random() * alivePlayers.length)].id].status = "dead";
           this.state.fire = 0;
           this.state.safety.shulter -= 1;
@@ -392,7 +393,7 @@ class GameServer {
       }
       case 6: {
         // kidnap
-        const kidnappedPeople = this.playerStats.filter(player => player.status === "kidnapped");
+        const kidnappedPeople = Object.values(this.playersStats).filter(player => player.status === "kidnapped");
         if (event < alivePlayers.length / 10) {
           for (let player of kidnappedPeople) {
             this.playersStats[player.id].status = "dead";
@@ -406,9 +407,9 @@ class GameServer {
       }
       case 7: {
         // incendie
-        if (event < alivePlayers.length / 8){
+        if (event < alivePlayers.length / 8) {
           this.state.wood -= 6;
-          if (this.state.wood < 0){
+          if (this.state.wood < 0) {
             this.state.wood = 0;
           }
           this.state.waterCap -= 5;
@@ -416,28 +417,28 @@ class GameServer {
           this.state.foodCap -= 5;
           this.state.safety.shulter -= 1;
           this.state.safety.fence -= 1;
-        } 
+        }
         break;
       } case 8: {
-        sickPlayers = this.playersStats.filter(player => player.status === "sick");
-        if (event < alivePlayers.length / 10){
+        let sickPlayers = Object.values(this.playersStats).filter(player => player.status === "sick");
+        if (event < alivePlayers.length / 10) {
           this.playersStats[sickPlayers[Math.floor(Math.random() * sickPlayers.length)].id].status = "dead";
         }
         break;
       }
     }
 
-    sickPlayers = this.playersStats.filter(player => player.status === "sick");
+    let sickPlayers = Object.values(this.playersStats).filter(player => player.status === "sick");
     for (let player of sickPlayers) {
       player.status = "alive";
-    } 
-    
-    
+    }
 
-    alivePlayers = this.playersStats.filter(player => player.status === "alive");
-    if (!hasCooked){
+
+
+    alivePlayers = Object.values(this.playersStats).filter(player => player.status === "alive");
+    if (!hasCooked) {
       let randoms = [];
-      for (i = 0; i < Math.floor(Math.random() * 4); i++) {
+      for (let i = 0; i < Math.floor(Math.random() * 4); i++) {
         randoms.push(Math.floor(Math.random() * alivePlayers.length));
       }
       for (let random of randoms) {
@@ -466,7 +467,7 @@ class GameServer {
     if (deadWaterCount > deadFoodCount) {
       // Tuer les gens
       let randoms = [];
-      for (i = 0; i < deadWaterCount; i++) {
+      for (let i = 0; i < deadWaterCount; i++) {
         randoms.push(Math.floor(Math.random() * alivePlayers.length));
       }
       for (let random of randoms) {
@@ -475,7 +476,7 @@ class GameServer {
     } else {
       // Tuer des gens
       let randoms = [];
-      for (i = 0; i < deadFoodCount; i++) {
+      for (let i = 0; i < deadFoodCount; i++) {
         randoms.push(Math.floor(Math.random() * alivePlayers.length));
       }
       for (let random of randoms) {
@@ -483,7 +484,7 @@ class GameServer {
       }
     }
     console.log(this.playersStats);
-    sendNewTurn();
+    this.sendNewTurn();
   }
 
   /**
