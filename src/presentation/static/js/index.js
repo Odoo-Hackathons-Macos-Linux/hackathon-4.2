@@ -22,29 +22,45 @@ console.log("User ID: " + userId);  // Print user ID to the console
 
 let totalydead = localStorage.getItem("totalydead") == "true";  // Retrieve the stored death status from localStorage
 
-socket.on("newTurn", (currentTurn, data) => {
+socket.on("newTurn", (currentTurn, data, playersStats) => {
     turn = currentTurn;
+    if (!playersStats[userId]){
+        choice = "alive";
+    } else {
+        choice = playersStats[userId].status;
+    }
     // Check if the player is dead
-    if (totalydead) {
+    if (totalydead && playersStats[userId]) {
         console.log("Player is dead, skipping turn");
         wait.classList.add("hidden");
         newTurn.classList.remove("hidden");
         startTurn("dead", data);
         return;  
+    } else {
+        totalydead = false;
+        localStorage.setItem("totalydead", "false"); 
+        const deadness = document.getElementById("dead");
+        const deadCard = document.getElementById("dead-card");
+        deadness.classList.add("hidden");
+        deadCard.classList.add("hidden");
+        deadCard.classList.remove("flex");
     }
     console.log("Player is alive, continuing the game");
 
     wait.classList.add("hidden");
     newTurn.classList.remove("hidden");
-
-    let status = ["alive", "sick"];
-    let choice = getRandomElement(status);
     if (choice == "dead") {
         startTurn(choice, data); 
         totalydead = true; 
         localStorage.setItem("totalydead", "true"); 
         console.log("Character is dead now");
     } else if (choice == "sick"){
+        startTurn(choice, data); 
+        setTimeout(() => {
+            wait.classList.remove("hidden"); 
+            newTurn.classList.add("hidden");
+        }, 10000);
+    } else if (choice == "kidnapped"){
         startTurn(choice, data); 
         setTimeout(() => {
             wait.classList.remove("hidden"); 
@@ -240,7 +256,8 @@ function startTurn(status, data) {
                 eventNowImg.src = imgEventSrc;
             }
         } else {
-            console.error("Event not found!");
+            console.error("Event not found! " + event);
+            console.error("Event not found! " + data);
         }
 
         // Initialize and Start the Process
@@ -296,7 +313,7 @@ function startTurn(status, data) {
             const imgEventSrc = "/img/" + event.event_image; // Construct the image path
 
             // Update the "event-now" image
-            const eventNowImg = document.querySelector("#event-now img");
+            const eventNowImg = document.querySelector("#event-now-sick img");
             if (eventNowImg) {
                 eventNowImg.src = imgEventSrc; // Set the new image source
             }
@@ -306,7 +323,67 @@ function startTurn(status, data) {
 
         startTimer();
         return "None";
-    } else {
+    } else if (status == "kidnapped"){
+        const sickness = document.getElementById("kidnapped");
+        const progressBar = document.getElementById("timebar-progress-kidnapped");
+        const sickCard = document.getElementById("kidnapped-card");
+        const event_before = document.getElementById("event-before-kidnapped");
+        const event_after = document.getElementById("event-now-kidnapped");
+        const timebar = document.getElementById("timebar-kidnapped");
+
+        if (!sickness || !event_before || !event_after || !timebar) {
+            console.error("One or more required DOM elements are missing!");
+            return; // Exit the function early if critical elements are missing
+        }
+
+        let width = 0;
+        let timerInterval;
+        let totalTime = 0;
+        let Duration = 4.6 * 2; // Duration for each section in seconds
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            totalTime = 0; // Reset time each time we start the timer
+            timerInterval = setInterval(() => {
+                totalTime += 0.1; // Increment accumulated time by 0.1 second
+                width = (totalTime / Duration) * 100; // Calculate the progress as a percentage
+                progressBar.style.width = `${width}%`;
+
+                // If the progress bar reaches 100%, stop the interval
+                if (width >= 100) {
+                    clearInterval(timerInterval);
+                    sickness.classList.add("hidden")
+                }
+            }, 100);
+        }
+
+        sickness.classList.remove("hidden")
+        event_before.classList.remove("max-w-[150px]");
+        event_after.classList.remove("max-w-[150px]");
+        event_before.classList.add("max-w-[100px]");
+        event_after.classList.add("max-w-[100px]");
+
+        sickCard.classList.remove("hidden");
+        sickCard.classList.add("flex");
+        timebar.classList.remove("hidden");
+        
+        const event = data.find((x) => x.event_id); // Find the event by its ID
+        if (event) {
+            const imgEventSrc = "/img/" + event.event_image; // Construct the image path
+
+            // Update the "event-now" image
+            const eventNowImg = document.querySelector("#event-now-kidnapped img");
+            if (eventNowImg) {
+                eventNowImg.src = imgEventSrc; // Set the new image source
+            }
+        } else {
+            console.error("Event not found!");
+        }
+
+        startTimer();
+        return "None";
+    }
+    else {
         const deadness = document.getElementById("dead");
         const deadCard = document.getElementById("dead-card");
         deadness.classList.remove("hidden");

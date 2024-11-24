@@ -13,11 +13,6 @@ const server = createServer(app);
 const io = new Server(server);
 const gameInstance = new GameServer(io, new Database("tg.db"));
 
-setInterval(() => {
-  console.log("Sending new turn")
-  gameInstance.sendNewTurn();
-}, 15 * 1000);
-
 app
   .set("view engine", "ejs")
   .set("views", join(__dirname, "presentation"))
@@ -27,34 +22,18 @@ app.get("/", (_req, res) => {
   res.render("pages/index", { eventTypes: "None" });
 });
 
-app.get("/card", (_req, res) => {
-  let eventTypes = [
-    "None",
-    "Famine",
-    "Attack",
-    "Storm",
-    "Kidnapping",
-    "Loot",
-    "Package",
-    "Fire",
-  ];
-  let id = 4;
-  res.render("pages/card", {
-    eventTypes: eventTypes[id],
-  });
+app.get("/chart", (_req, res) => {
+  res.render("pages/chartjs");
 });
 
+gameInstance.sendNewTurn();
 io.on("connection", (socket) => {
   console.log("Socket connected: " + socket.id);
 
   // When a player plays their turn, receive their userId, turn, and choice
   socket.on("played", (userId, turn, choice) => {
-    console.log(`Player ${userId} made a choice: ${choice} on turn ${turn}`);
-
-    // Pass the userId, turn, and choice to the GameServer's method
     gameInstance.onPlayerPlayed(userId, turn, choice);
   });
-
   // You can also track disconnect events and do cleanup (if necessary)
   socket.on("disconnect", () => {
     console.log("Socket disconnected: " + socket.id);
