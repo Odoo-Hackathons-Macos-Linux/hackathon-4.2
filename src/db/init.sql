@@ -94,28 +94,28 @@ INSERT INTO events_categories (event_id, category_id) VALUES
   (8, 7); /* illness - antidote */
 
 INSERT INTO choices (category_id, name, image) VALUES
-  (1, 'water', 'ressources/water.jpeg'),
-  (1, 'plants', 'ressources/plants.jpeg'),
-  (1, 'fishing', 'ressources/fishing.jpeg'),
-  (1, 'wood', 'ressources/wood.jpeg'),
-  (1, 'cooking', 'ressources/cooking.jpeg'),
+  (1, 'water', 'ressources/water.jpeg', 'img/personalite/agriculteur.jpeg'),
+  (1, 'plants', 'ressources/plants.jpeg', 'img/personalite/agriculteur.jpeg'),
+  (1, 'fishing', 'ressources/fishing.jpeg', 'img/personalite/chasseur.jpeg'),
+  (1, 'wood', 'ressources/wood.jpeg', 'img/personalite/survivant.jpeg'),
+  (1, 'cooking', 'ressources/cooking.jpeg', 'img/personalite/soigneur.jpeg'),
 
-  (2, 'abris', 'construction/abris.jpeg'),
-  (2, 'fire', 'construction/fire.webp'),
-  (2, 'ramparts', 'construction/security.jpeg'),
-  (2, 'storage', 'construction/storage.jpeg'),
+  (2, 'abris', 'construction/abris.jpeg', 'img/personalite/manager.jpeg'),
+  (2, 'fire', 'construction/fire.webp','img/personalite/gardien.jpeg'),
+  (2, 'ramparts', 'construction/security.jpeg', 'img/personalite/gardien.jpeg'),
+  (2, 'storage', 'construction/storage.jpeg', 'img/personalite/planificateur.jpeg'),
 
-  (3, 'water++', 'exploration/water+.jpeg'),
-  (3, 'wood++', 'exploration/wood+.jpeg'),
-  (3, 'loot', 'exploration/remains.jpeg'),
-  (3, 'hunting', 'exploration/hunting.jpeg'),
+  (3, 'water++', 'exploration/water+.jpeg', 'img/personalite/courageux.jpeg'),
+  (3, 'wood++', 'exploration/wood+.jpeg', 'img/personalite/courageux.jpeg'),
+  (3, 'loot', 'exploration/remains.jpeg', 'img/personalite/curieux.jpeg'),
+  (3, 'hunting', 'exploration/hunting.jpeg', 'img/personalite/chasseur.jpeg'),
 
-  (4, 'tools', 'technology/tools.jpeg'),
-  (4, 'transports', 'technology/transport.jpeg'),
-  (4, 'security', 'technology/securite.jpeg'),
-  (4, 'agriculture', 'technology/agriculture.jpeg'),
+  (4, 'tools', 'technology/tools.jpeg', 'img/personalite/scientifique.jpeg'),
+  (4, 'transports', 'technology/transport.jpeg', 'img/personalite/manager.jpeg'),
+  (4, 'security', 'technology/securite.jpeg', 'img/personalite/planificateur.jpeg'),
+  (4, 'agriculture', 'technology/agriculture.jpeg', 'img/personalite/agriculteur.jpeg'),
 
-  (5, 'save', 'events/save.jpeg'),
-  (6, 'firefighter', 'events/firefighter.jpeg'),
-  (7, 'antidote', 'events/antidote.jpeg');
+  (5, 'save', 'events/save.jpeg', 'img/personalite/courageux.jpeg'),
+  (6, 'firefighter', 'events/firefighter.jpeg', 'img/personalite/courageux.jpeg'),
+  (7, 'antidote', 'events/antidote.jpeg', 'img/personalite/soigneur.jpeg');
 
