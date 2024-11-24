@@ -22,21 +22,8 @@ app.get("/", (_req, res) => {
   res.render("pages/index", { eventTypes: "None" });
 });
 
-app.get("/card", (_req, res) => {
-  let eventTypes = [
-    "None",
-    "Famine",
-    "Attack",
-    "Storm",
-    "Kidnapping",
-    "Loot",
-    "Package",
-    "Fire",
-  ];
-  let id = 4;
-  res.render("pages/card", {
-    eventTypes: eventTypes[id],
-  });
+app.get("/chart", (_req, res) => {
+  res.render("pages/chartjs");
 });
 
 gameInstance.sendNewTurn();
@@ -45,9 +32,6 @@ io.on("connection", (socket) => {
 
   // When a player plays their turn, receive their userId, turn, and choice
   socket.on("played", (userId, turn, choice) => {
-    console.log(`Player ${userId} made a choice: ${choice} on turn ${turn}`);
-
-    // Pass the userId, turn, and choice to the GameServer's method
     gameInstance.onPlayerPlayed(userId, turn, choice);
   });
   // You can also track disconnect events and do cleanup (if necessary)
