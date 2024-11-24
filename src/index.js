@@ -26,7 +26,20 @@ app.get("/chart", (_req, res) => {
   res.render("pages/chartjs");
 });
 
-gameInstance.sendNewTurn();
+app.get("/game", (_req, res) => {
+  res.render("pages/game");
+});
+
+app.post("/game/newturn", (_req, res) => {
+  gameInstance.sendNewTurn();
+  res.redirect("/game");
+});
+
+app.post("/game/stop", (_req, res) => {
+  gameInstance.sendEndGame();
+  res.redirect("/game");
+});
+
 io.on("connection", (socket) => {
   console.log("Socket connected: " + socket.id);
 
