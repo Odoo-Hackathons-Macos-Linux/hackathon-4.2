@@ -1,6 +1,7 @@
 const socket = io();
 const wait = document.getElementById("wait");
 const newTurn = document.getElementById("newTurn");
+const endTurn = document.getElementById("end");
 
 let selectedCardID = 1;
 let turn = 0;
@@ -29,6 +30,7 @@ socket.on("newTurn", (currentTurn, data, playersStats) => {
   } else {
     choice = playersStats[userId].status;
   }
+  endTurn.classList.add("hidden");
   // Check if the player is dead
   if (totalydead && playersStats[userId]) {
     console.log("Player is dead, skipping turn");
@@ -432,8 +434,6 @@ socket.on("endGame", (playersStats, personnalityData) => {
   const result = mostSelectedVal(playersStats[userId].choices);
   wait.classList.add("hidden");
   newTurn.classList.add("hidden");
-
-  const endTurn = document.getElementById("end");
   endTurn.classList.remove("hidden");
 
   const imgEventSrc = "/img/" + personnalityData[result].personnality_type;

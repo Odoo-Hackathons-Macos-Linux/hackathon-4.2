@@ -103,7 +103,7 @@ class GameServer {
     this.db = db;
     this.state = new GameState();
 
-    db.init()
+    // db.init()
   }
 
   /**
@@ -565,11 +565,15 @@ class GameServer {
   }
 
   getGameData() {
-    let data = [this.state.water, this.state.wood, this.state.food, this.state.fire];
-    let data2 = [this.state.waterCap, this.state.woodCap, this.state.foodCap];
-    let data3 = [this.state.safety.shulter, this.state.safety.fences];
-    let data4 = [this.state.technology.tools, this.state.technology.transports, this.state.technology.safety, this.state.technology.agriculture];
-    return [data, data2, data3, data4];
+    let alivePlayers = Object.values(this.playersStats).filter(player => player.status == "alive");
+    let sickPlayers = Object.values(this.playersStats).filter(player => player.status == "sick");
+    let kidnappedPlayers = Object.values(this.playersStats).filter(player => player.status == "kidnapped");
+    let deadPlayers = Object.values(this.playersStats).filter(player => player.status == "dead");
+    let totalPlayers = Object.values(this.playersStats).filter(player => player.status !== "dead");
+    let data = [this.state.water, this.state.food, this.state.wood, this.state.fire];
+    let dataMin = [totalPlayers, totalPlayers, 0, 0];
+    let data2 = [alivePlayers.length, sickPlayers.length, kidnappedPlayers.length, deadPlayers.length];
+    return [data, data2, dataMin];
   }
 }
 
