@@ -93,7 +93,7 @@ INSERT INTO events_categories (event_id, category_id) VALUES
   (8, 4),
   (8, 7); /* illness - antidote */
 
-INSERT INTO choices (category_id, name, image) VALUES
+INSERT INTO choices (category_id, name, image, personnality_type) VALUES
   (1, 'water', 'ressources/water.jpeg', 'img/personalite/agriculteur.jpeg'),
   (1, 'plants', 'ressources/plants.jpeg', 'img/personalite/agriculteur.jpeg'),
   (1, 'fishing', 'ressources/fishing.jpeg', 'img/personalite/chasseur.jpeg'),

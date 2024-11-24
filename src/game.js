@@ -111,6 +111,8 @@ class GameServer {
    */
   resetStats() {
     this.playersStats = {};  // Clear all player data
+    this.state = new GameState();
+    this.turnNumber = 1;
     console.log("Player stats have been reset");
   }
 

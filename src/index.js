@@ -40,6 +40,11 @@ app.post("/game/stop", (_req, res) => {
   res.redirect("/game");
 });
 
+app.post("/game/reset", (_req, res) => {
+  gameInstance.resetStats();
+  res.redirect("/game");
+});
+
 io.on("connection", (socket) => {
   console.log("Socket connected: " + socket.id);
 
