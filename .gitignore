@@ -207,3 +207,5 @@ src/presentation/static/css/output.css
 *.db
 *.sqlite
 *.sqlite3
+
+src/presentation/static/css/output.css
