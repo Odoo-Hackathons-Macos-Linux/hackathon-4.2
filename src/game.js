@@ -130,15 +130,18 @@ class GameServer {
 
     let data = this.db.getTurnData(this.turnEvent);
     console.log("Event id : " + this.turnEvent);
-    if (this.turnEvent == 6){
+    if (this.turnEvent == 6) {
       let alivePlayers = Object.values(this.playersStats).filter(player => player.status !== "dead");
-      this.playersStats[alivePlayers[Math.floor(Math.random() * alivePlayers.length)].id].status = "kidnapped";
+
+      if (alivePlayers.length > 0) {
+        this.playersStats[alivePlayers[Math.floor(Math.random() * alivePlayers.length)].id].status = "kidnapped";
+      }
       console.log(this.playersStats);
     }
-    if (this.turnEvent == 8){
+    if (this.turnEvent == 8) {
       let alivePlayers = Object.values(this.playersStats).filter(player => player.status !== "dead");
       let randoms = [];
-      for (let i = 0; i < Math.floor(Math.random() * alivePlayers.length/8); i++) {
+      for (let i = 0; i < Math.floor(Math.random() * alivePlayers.length / 8); i++) {
         randoms.push(Math.floor(Math.random() * alivePlayers.length));
       }
       for (let random of randoms) {
@@ -160,14 +163,14 @@ class GameServer {
     let hasCooked = false;
     let event = 0;
 
-    if (Object.entries(this.playersStats).length == 0) {
-      this.sendNewTurn();
-      return;
-    }
+    // if (Object.entries(this.playersStats).length == 0) {
+    //   this.sendNewTurn();
+    //   return;
+    // }
 
     for (const [id, player] of Object.entries(this.playersStats)) {
       console.log(player.choices.find(choice => choice.turn === this.turnNumber)); // Faut trouver une solution en fonction du tour. Certains ne vous pas avoir de valeurs donc via Hashmap ?
-      if (!player.choices.find(choice => choice.turn === this.turnNumber)){
+      if (!player.choices.find(choice => choice.turn === this.turnNumber)) {
         console.log(player.id + " -> Is dead");
         break;
       }
@@ -218,7 +221,7 @@ class GameServer {
         case 10: { // water++
           if (Math.random() < 0.15) {
             this.playersStats[player.id].status = "dead";
-            if (!this.getPlayerAlive()){ return this.sendEndGame()};
+            if (!this.getPlayerAlive()) { return this.sendEndGame() };
             break;
           }
 
@@ -232,7 +235,7 @@ class GameServer {
         case 11: { // wood++
           if (Math.random() < 0.15) {
             this.playersStats[player.id].status = "dead";
-            if (!this.getPlayerAlive()){ return this.sendEndGame()};
+            if (!this.getPlayerAlive()) { return this.sendEndGame() };
             break;
           }
 
@@ -246,7 +249,7 @@ class GameServer {
         case 12: { // loot
           if (Math.random() < 0.25) {
             this.playersStats[player.id].status = "dead";
-            if (!this.getPlayerAlive()){ return this.sendEndGame()};
+            if (!this.getPlayerAlive()) { return this.sendEndGame() };
             break;
           }
 
@@ -284,7 +287,7 @@ class GameServer {
         case 13: { // hunting
           if (Math.random() < 0.20) {
             this.playersStats[player.id].status = "dead";
-            if (!this.getPlayerAlive()){ return this.sendEndGame()};
+            if (!this.getPlayerAlive()) { return this.sendEndGame() };
           }
 
           let chance = Math.random();
@@ -395,15 +398,17 @@ class GameServer {
         // attack
         if (this.state.safety.fences < 5) {
           this.playersStats[alivePlayers[Math.floor(Math.random() * alivePlayers.length)].id].status = "dead";
-          if (!this.getPlayerAlive()){ return this.sendEndGame()};
+          if (!this.getPlayerAlive()) { return this.sendEndGame() };
         }
         break;
       }
       case 4: {
         // storm
         if (this.state.safety.shulter < 2) {
-          this.playersStats[alivePlayers[Math.floor(Math.random() * alivePlayers.length)].id].status = "dead";
-          if (!this.getPlayerAlive()){ return this.sendEndGame()};
+          if (Object.values(this.playersStats).filter(x => x.status == "alive").length > 3) {
+            this.playersStats[alivePlayers[Math.floor(Math.random() * alivePlayers.length)].id].status = "dead";
+          }
+          if (!this.getPlayerAlive()) { return this.sendEndGame() };
           this.state.fire = 0;
           this.state.safety.shulter -= 1;
           this.state.water += 5;
@@ -426,7 +431,7 @@ class GameServer {
         if (event < alivePlayers.length / 10) {
           for (let player of kidnappedPeople) {
             this.playersStats[player.id].status = "dead";
-            if (!this.getPlayerAlive()){ return this.sendEndGame()};
+            if (!this.getPlayerAlive()) { return this.sendEndGame() };
           }
         } else {
           for (let player of kidnappedPeople) {
@@ -453,7 +458,7 @@ class GameServer {
         let sickPlayers = Object.values(this.playersStats).filter(player => player.status === "sick");
         if (event < alivePlayers.length / 10) {
           this.playersStats[sickPlayers[Math.floor(Math.random() * sickPlayers.length)].id].status = "dead";
-          if (!this.getPlayerAlive()){ return this.sendEndGame()};
+          if (!this.getPlayerAlive()) { return this.sendEndGame() };
         }
         break;
       }
@@ -467,7 +472,7 @@ class GameServer {
     alivePlayers = Object.values(this.playersStats).filter(player => player.status !== "dead");
     if (!hasCooked && alivePlayers.length > 3) {
       let randoms = [];
-      for (let i = 0; i < Math.floor(Math.random() * alivePlayers.length/8); i++) {
+      for (let i = 0; i < Math.floor(Math.random() * alivePlayers.length / 8); i++) {
         randoms.push(Math.floor(Math.random() * alivePlayers.length));
       }
       for (let random of randoms) {
@@ -501,7 +506,7 @@ class GameServer {
       }
       for (let random of randoms) {
         this.playersStats[alivePlayers[random].id].status = "dead";
-        if (!this.getPlayerAlive()){ return this.sendEndGame()};
+        if (!this.getPlayerAlive()) { return this.sendEndGame() };
       }
     } else {
       // Tuer des gens
@@ -511,11 +516,11 @@ class GameServer {
       }
       for (let random of randoms) {
         this.playersStats[alivePlayers[random].id].status = "dead";
-        if (!this.getPlayerAlive()){ return this.sendEndGame()};
+        if (!this.getPlayerAlive()) { return this.sendEndGame() };
       }
     }
     console.log(this.playersStats);
-    this.sendNewTurn();
+    // this.sendNewTurn();
   }
 
   /**
@@ -536,7 +541,7 @@ class GameServer {
         status: "alive"
       };
     }
-    this.playersStats[userId].choices.push({val: choice, turn:this.turnNumber});
+    this.playersStats[userId].choices.push({ val: choice, turn: this.turnNumber });
   }
 
   /**
@@ -547,11 +552,11 @@ class GameServer {
     return this.playersStats;
   }
 
-  getPlayerAlive(){
+  getPlayerAlive() {
     return Object.values(this.playersStats).filter(player => player.status === "alive").length > 0;
   }
 
-  sendEndGame() { 
+  sendEndGame() {
     console.log(this.playersStats);
     console.log("sendEndGame (everybody died)");
     this.server.emit("endGame");
